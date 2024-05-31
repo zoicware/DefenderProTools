@@ -31,10 +31,12 @@ Run Script from Console
 iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/DisableDefender.ps1 | iex
 ````
 
-- Newest update to Windows Defender makes it impossible to disable MsMpEng without disabling Tamper Protection before
+- this script will disable all services/processes related to windows defender
+    - Note : windows defender firewall is not touched
+    
+- to bypass tamper protection a temporary antivirus needs to be installed
+    - Credit : https://github.com/es3n1n/no-defender
 
-- The script will automatically navigate to tamper protection via the security health app
-  - You can also disable tamper protection before running the script
 
 - Credits to @AveYo for the disable MsMpEng service snippet
 
