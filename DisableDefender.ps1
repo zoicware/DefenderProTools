@@ -42,7 +42,7 @@ function RunAsTI($cmd, $arg) {
 } # lean & mean snippet by AveYo, 2022.01.28
 
 
-
+<#
 #check if tamper protection is disabled already
 $key = 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender\Features'
 try {
@@ -186,12 +186,42 @@ public class Keyboard
 if ((!($tamper -eq '4' -or '0' -and $tamperSource -eq '2')) -or !((Get-MpPreference).DisableTamperProtection)) {
   Write-Host 'Tamper Protection NOT Disabled...Closing Script' -ForegroundColor Red
 }
-else {
+#>
 
-  Write-Host 'Disabling MsMpEng Service...'
-  #edited toggle defender function https://github.com/AveYo/LeanAndMean
-  function defeatMsMpEng {
-    $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
+#temp anti virus credit https://github.com/es3n1n/no-defender
+
+Write-Host 'Installing Temp Antivirus...'
+$ProgressPreference = 'SilentlyContinue'
+$tempDir = "$env:TEMP\nodefender"
+New-item -Path $tempDir -ItemType Directory -Force | Out-Null
+#install files
+$uri = 'https://raw.githubusercontent.com/zoicware/DefenderProTools/main/Resources/nodefender'
+$files = @(
+  'no-defender-loader.exe'
+  'no-defender-loader.pdb'
+  'powrprof.dll'
+  'powrprof.pdb'
+  'wsc.dll'
+  'wsc_proxy.exe'
+)
+foreach ($file in $files) {
+  Invoke-WebRequest -Uri "$uri/$file" -OutFile "$tempDir\$file" -UseBasicParsing
+
+}
+
+#run no defender
+Start-Process "$tempDir\no-defender-loader.exe" -ArgumentList '--av' -WindowStyle Hidden
+
+#wait for defender service to close before continue
+do {
+  $proc = Get-Process -Name MsMpEng -ErrorAction SilentlyContinue
+  Start-Sleep 1
+}while ($proc)
+
+Write-Host 'Disabling MsMpEng Service...'
+#edited toggle defender function https://github.com/AveYo/LeanAndMean
+function defeatMsMpEng {
+  $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
  $I=[int32]; $M=$I.module.gettype("System.Runtime.Interop`Services.Mar`shal"); $P=$I.module.gettype("System.Int`Ptr"); $S=[string]
  $D=@(); $DM=[AppDomain]::CurrentDomain."DefineDynami`cAssembly"(1,1)."DefineDynami`cModule"(1); $U=[uintptr]; $Z=[uintptr]::size 
  0..5|% {$D += $DM."Defin`eType"("AveYo_$_",1179913,[ValueType])}; $D += $U; 4..6|% {$D += $D[$_]."MakeByR`efType"()}; $F=@()
@@ -265,19 +295,15 @@ else {
  
  ################################################################################################################################
 '@; $V = ''; 'id', 'key' | ForEach-Object { $V += "`n`$$_='$($(Get-Variable $_ -val)-replace"'","''")';" }; Set-ItemProperty $key $id $V, $code -type 7 -force -ea 0
-    Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -Wait
-  }
-  defeatMsMpEng
-  #wait for defender service to close before continue
-  do {
-    $proc = Get-Process -Name MsMpEng -ErrorAction SilentlyContinue
-    Start-Sleep 1
-  }while ($proc)
-  #disables defender through gp edit
+  Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -Wait
+}
+defeatMsMpEng
+  
+#disables defender through gp edit
  
-  Write-Host 'Disabling Defender with Group Policy' 
+Write-Host 'Disabling Defender with Group Policy' 
 
-  $command = @'
+$command = @'
 Reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d "1" /f
 Reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v "DisableRealtimeMonitoring" /t REG_DWORD /d "1" /f
 Reg add "HKLM\SYSTEM\CurrentControlSet\Services\SecurityHealthService" /v "Start" /t REG_DWORD /d "4" /f 
@@ -302,22 +328,29 @@ Reg add "HKLM\SOFTWARE\Microsoft\Windows Security Health\State" /v "AppAndBrowse
 '@
 
 
-  RunAsTI powershell "-nologo -windowstyle hidden -command $command"
-  Start-Sleep 2
-  #disable tasks
-  Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Cache Maintenance' } | Disable-ScheduledTask -ErrorAction SilentlyContinue
-  Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Cleanup' } | Disable-ScheduledTask -ErrorAction SilentlyContinue
-  Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Scheduled Scan' } | Disable-ScheduledTask -ErrorAction SilentlyContinue
-  Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Verification' } | Disable-ScheduledTask -ErrorAction SilentlyContinue
+RunAsTI powershell "-nologo -windowstyle hidden -command $command"
+Start-Sleep 2
 
-  #stop smartscreen from running
-  $smartScreen = 'C:\Windows\System32\smartscreen.exe'
-  $smartScreenOFF = 'C:\Windows\System32\smartscreenOFF.exe'
-  $command = "Remove-item -path $smartscreenOFF -force -erroraction silentlycontinue; Rename-item -path $smartScreen -newname smartscreenOFF.exe -force"
- 
-  RunAsTI powershell "-nologo -windowstyle hidden -command $command"
+#disable tasks
+$tasks = Get-ScheduledTask
+foreach ($task in $tasks) {
+  if ($task.Taskname -like 'Windows Defender*') {
+    Disable-ScheduledTask -TaskName $task.TaskName -ErrorAction SilentlyContinue
+  }
 }
-      
+
+#stop smartscreen from running
+$smartScreen = 'C:\Windows\System32\smartscreen.exe'
+$smartScreenOFF = 'C:\Windows\System32\smartscreenOFF.exe'
+$command = "Remove-item -path $smartscreenOFF -force -erroraction silentlycontinue; Rename-item -path $smartScreen -newname smartscreenOFF.exe -force"
+ 
+RunAsTI powershell "-nologo -windowstyle hidden -command $command"
+
+Write-Host 'Cleaning Up...'
+#remove temp av
+Remove-Item $tempDir -Force -Recurse -ErrorAction SilentlyContinue
+Remove-Item -Path 'registry::HKLM\SOFTWARE\Avast Software' -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path 'registry::HKLM\SYSTEM\ControlSet001\Services\wsc_proxy' -Recurse -Force -ErrorAction SilentlyContinue
 
 [reflection.assembly]::loadwithpartialname('System.Windows.Forms') | Out-Null 
 $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Restart Computer?', 'zoicware', 'YesNo', 'Question')
