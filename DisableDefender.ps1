@@ -194,6 +194,8 @@ Write-Host 'Installing Temp Antivirus...'
 $ProgressPreference = 'SilentlyContinue'
 $tempDir = "$env:TEMP\nodefender"
 New-item -Path $tempDir -ItemType Directory -Force | Out-Null
+#add dir to exclusion
+Add-MpPreference -ExclusionPath $tempDir -Force -ErrorAction SilentlyContinue
 #install files
 $uri = 'https://raw.githubusercontent.com/zoicware/DefenderProTools/main/Resources/nodefender'
 $files = @(
