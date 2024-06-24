@@ -141,10 +141,17 @@ $ENABLE_TAMPER_PROTECTION = 1
 enableMsMpEng
 
 Write-Host 'Enabling Scheduled Tasks...'
-Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Cache Maintenance' } | Enable-ScheduledTask -ErrorAction SilentlyContinue
-Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Cleanup' } | Enable-ScheduledTask -ErrorAction SilentlyContinue
-Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Scheduled Scan' } | Enable-ScheduledTask -ErrorAction SilentlyContinue
-Get-ScheduledTask | Where-Object { $_.Taskname -match 'Windows Defender Verification' } | Enable-ScheduledTask -ErrorAction SilentlyContinue
+$defenderTasks = Get-ScheduledTask 
+foreach ($task in $defenderTasks) {
+    if ($task.TaskName -like 'Windows Defender*') {
+        Enable-ScheduledTask -TaskName $task.TaskName -ErrorAction SilentlyContinue | Out-Null
+    }
+}
+
+Write-Host 'Enabling Defender Features...'
+$ProgressPreference = 'SilentlyContinue'
+Enable-WindowsOptionalFeature -Online -FeatureName 'Windows-Defender-Default-Definitions' -NoRestart -ErrorAction SilentlyContinue | Out-Null
+Enable-WindowsOptionalFeature -Online -FeatureName 'Windows-Defender-ApplicationGuard' -NoRestart -ErrorAction SilentlyContinue | Out-Null
 
 #rename smartscreen
 $command = 'Rename-item -path C:\Windows\System32\smartscreenOFF.exe -newname smartscreen.exe -force -erroraction silentlycontinue' 
