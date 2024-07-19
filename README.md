@@ -5,6 +5,14 @@
 
 > **NOTE:** When running manually use the included registry file to allow PowerShell scripts to run
 
+- Included Scripts
+  - [Strip Windows Defender](#strip-windows-defender)
+  - [Disable Windows Defender](#disable-windows-defender)
+  - [Replace Windows Defender](#replace-windows-defender)
+  - [Enable Windows Defender](#enable-windows-defender)
+
+---
+
 ## Strip Windows Defender
 
 This powershell script will use dism and trusted installer privileges to remove defender permanently from the latest Windows 10 and 11 ISO files.
