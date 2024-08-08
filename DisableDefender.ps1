@@ -172,41 +172,6 @@ if ((!($tamper -eq '4' -or '0' -and $tamperSource -eq '2')) -or !((Get-MpPrefere
   Write-Host 'Tamper Protection NOT Disabled...Closing Script' -ForegroundColor Red
 }
 #>
-
-#temp anti virus credit https://github.com/es3n1n/no-defender
-
-Write-Host 'Installing Temp Antivirus...'
-$ProgressPreference = 'SilentlyContinue'
-$tempDir = "$env:TEMP\nodefender"
-New-item -Path $tempDir -ItemType Directory -Force | Out-Null
-#add dir to exclusion
-Add-MpPreference -ExclusionPath $tempDir -Force -ErrorAction SilentlyContinue
-#install files
-$uri = 'https://raw.githubusercontent.com/zoicware/DefenderProTools/main/Resources/nodefender'
-$files = @(
-  'ilovedefender.exe'
-  'no-defender-loader.pdb'
-  'powrprof.dll'
-  'powrprof.pdb'
-  'wsc.dll'
-  'wsc_proxy.exe'
-)
-foreach ($file in $files) {
-  Invoke-WebRequest -Uri "$uri/$file" -OutFile "$tempDir\$file" -UseBasicParsing
-
-}
-
-#run no defender
-Start-Process "$tempDir\ilovedefender.exe" -ArgumentList '--av' -WindowStyle Hidden
-
-#wait for defender service to close before continue
-do {
-  $proc = Get-Process -Name MsMpEng -ErrorAction SilentlyContinue
-  Start-Sleep 1
-}while ($proc)
-
-Write-Host 'Disabling MsMpEng Service...'
-#edited toggle defender function https://github.com/AveYo/LeanAndMean
 function defeatMsMpEng {
   $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
  $I=[int32]; $M=$I.module.gettype("System.Runtime.Interop`Services.Mar`shal"); $P=$I.module.gettype("System.Int`Ptr"); $S=[string]
@@ -282,8 +247,67 @@ function defeatMsMpEng {
  
  ################################################################################################################################
 '@; $V = ''; 'id', 'key' | ForEach-Object { $V += "`n`$$_='$($(Get-Variable $_ -val)-replace"'","''")';" }; Set-ItemProperty $key $id $V, $code -type 7 -force -ea 0
-  Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -Wait
+  Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -WindowStyle Hidden -Wait
 }
+
+Write-Host 'Running Initial Stage...'
+
+#disable notifications and others that are allowed while defender is running
+Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender Security Center\Notifications' /v 'DisableEnhancedNotifications' /t REG_DWORD /d '1' /f *>$null
+Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender Security Center\Notifications' /v 'DisableNotifications' /t REG_DWORD /d '1' /f *>$null
+Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender Security Center\Virus and threat protection' /v 'SummaryNotificationDisabled' /t REG_DWORD /d '1' /f *>$null
+Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender Security Center\Virus and threat protection' /v 'NoActionNotificationDisabled' /t REG_DWORD /d '1' /f *>$null
+Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender Security Center\Virus and threat protection' /v 'FilesBlockedNotificationDisabled' /t REG_DWORD /d '1' /f *>$null
+#exploit protection
+Reg.exe add 'HKLM\SYSTEM\ControlSet001\Control\Session Manager\kernel' /v 'MitigationOptions' /t REG_BINARY /d '222222000001000000000000000000000000000000000000' /f *>$null
+Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender' /v 'PUAProtection' /t REG_DWORD /d '0' /f"
+Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' /v 'SmartScreenEnabled' /t REG_SZ /d 'Off' /f"
+#first run of defeat function
+defeatMsMpEng
+Start-Sleep 3
+
+#temp anti virus credit https://github.com/es3n1n/no-defender
+Write-Host 'Installing Temp Antivirus...'
+$ProgressPreference = 'SilentlyContinue'
+$tempDir = "$env:TEMP\nodefender"
+New-item -Path $tempDir -ItemType Directory -Force | Out-Null
+#add dir to exclusion
+Add-MpPreference -ExclusionPath $tempDir -Force 
+Add-MpPreference -ExclusionProcess 'ilovedefender.exe' -Force 
+$splat = @{
+  DisableBehaviorMonitoring        = $true 
+  DisableIntrusionPreventionSystem = $true 
+  DisableRealtimeMonitoring        = $true 
+  DisableBlockAtFirstSeen          = $true 
+}
+Set-MpPreference -ExclusionProcess 'ilovedefender.exe' @splat 
+#install files
+$uri = 'https://raw.githubusercontent.com/zoicware/DefenderProTools/main/Resources/nodefender'
+$files = @(
+  'ilovedefender.exe'
+  'no-defender-loader.pdb'
+  'powrprof.dll'
+  'powrprof.pdb'
+  'wsc.dll'
+  'wsc_proxy.exe'
+)
+foreach ($file in $files) {
+  Invoke-WebRequest -Uri "$uri/$file" -OutFile "$tempDir\$file" -UseBasicParsing
+}
+#attempt to kill defender processes and silence notifications from sec center
+$command = 'Stop-Process MpDefenderCoreService -Force; Stop-Process smartscreen -Force; Stop-Process SecurityHealthService -Force; Stop-Process SecurityHealthSystray -Force; Stop-Service -Name wscsvc -Force; Stop-Service -Name Sense -Force'
+Run-Trusted -command $command
+#run no defender
+Start-Process "$tempDir\ilovedefender.exe" -ArgumentList '--av' -WindowStyle Hidden
+
+#wait for defender service to close before continue
+do {
+  $proc = Get-Process -Name MsMpEng -ErrorAction SilentlyContinue
+  Start-Sleep 1
+}while ($proc)
+
+Write-Host 'Disabling MsMpEng Service...'
+#edited toggle defender function https://github.com/AveYo/LeanAndMean
 defeatMsMpEng
   
 #disables defender through gp edit
