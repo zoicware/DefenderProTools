@@ -172,83 +172,168 @@ if ((!($tamper -eq '4' -or '0' -and $tamperSource -eq '2')) -or !((Get-MpPrefere
   Write-Host 'Tamper Protection NOT Disabled...Closing Script' -ForegroundColor Red
 }
 #>
+
+#refactor of https://github.com/AveYo/LeanAndMean/blob/main/disableDefender.ps1
+$code = @'
 function defeatMsMpEng {
-  $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
- $I=[int32]; $M=$I.module.gettype("System.Runtime.Interop`Services.Mar`shal"); $P=$I.module.gettype("System.Int`Ptr"); $S=[string]
- $D=@(); $DM=[AppDomain]::CurrentDomain."DefineDynami`cAssembly"(1,1)."DefineDynami`cModule"(1); $U=[uintptr]; $Z=[uintptr]::size 
- 0..5|% {$D += $DM."Defin`eType"("AveYo_$_",1179913,[ValueType])}; $D += $U; 4..6|% {$D += $D[$_]."MakeByR`efType"()}; $F=@()
- $F+='kernel','CreateProcess',($S,$S,$I,$I,$I,$I,$I,$S,$D[7],$D[8]), 'advapi','RegOpenKeyEx',($U,$S,$I,$I,$D[9])
- $F+='advapi','RegSetValueEx',($U,$S,$I,$I,[byte[]],$I),'advapi','RegFlushKey',($U),'advapi','RegCloseKey',($U)
- 0..4|% {$9=$D[0]."DefinePInvok`eMethod"($F[3*$_+1], $F[3*$_]+"32", 8214,1,$S, $F[3*$_+2], 1,4)}
- $DF=($P,$I,$P),($I,$I,$I,$I,$P,$D[1]),($I,$S,$S,$S,$I,$I,$I,$I,$I,$I,$I,$I,[int16],[int16],$P,$P,$P,$P),($D[3],$P),($P,$P,$I,$I)
- 1..5|% {$k=$_; $n=1; $DF[$_-1]|% {$9=$D[$k]."Defin`eField"("f" + $n++, $_, 6)}}; $T=@(); 0..5|% {$T += $D[$_]."Creat`eType"()}
- 0..5|% {nv "A$_" ([Activator]::CreateInstance($T[$_])) -fo}; function F ($1,$2) {$T[0]."G`etMethod"($1).invoke(0,$2)}
- function M ($1,$2,$3) {$M."G`etMethod"($1,[type[]]$2).invoke(0,$3)}; $H=@(); $Z,(4*$Z+16)|% {$H += M "AllocHG`lobal" $I $_}
- if ([environment]::username -ne "system") { $TI="Trusted`Installer"; start-service $TI -ea 0; $As=get-process -name $TI -ea 0
- M "WriteInt`Ptr" ($P,$P) ($H[0],$As.Handle); $A1.f1=131072; $A1.f2=$Z; $A1.f3=$H[0]; $A2.f1=1; $A2.f2=1; $A2.f3=1; $A2.f4=1
- $A2.f6=$A1; $A3.f1=10*$Z+32; $A4.f1=$A3; $A4.f2=$H[1]; M "StructureTo`Ptr" ($D[2],$P,[boolean]) (($A2 -as $D[2]),$A4.f2,$false)
- $R=@($null, "powershell -nop -c iex(`$env:R); # $id", 0, 0, 0, 0x0E080610, 0, $null, ($A4 -as $T[4]), ($A5 -as $T[5]))
- F 'CreateProcess' $R; return}; $env:R=''; rp $key $id -force -ea 0; $e=[diagnostics.process]."GetM`ember"('SetPrivilege',42)[0]
- 'SeSecurityPrivilege','SeTakeOwnershipPrivilege','SeBackupPrivilege','SeRestorePrivilege' |% {$e.Invoke($null,@("$_",2))}
- ## Toggling was unreliable due to multiple windows programs with open handles on these keys
- ## so went with low-level functions instead! do not use them in other scripts without a trip to learn-microsoft-com  
- function RegSetDwords ($hive, $key, [array]$values, [array]$dword, $REG_TYPE=4, $REG_ACCESS=2, $REG_OPTION=0) {
-   $rok = ($hive, $key, $REG_OPTION, $REG_ACCESS, ($hive -as $D[9]));  F "RegOpenKeyEx" $rok; $rsv = $rok[4]
-   $values |% {$i = 0} { F "RegSetValueEx" ($rsv[0], [string]$_, 0, $REG_TYPE, [byte[]]($dword[$i]), 4); $i++ }
-   F "RegFlushKey" @($rsv); F "RegCloseKey" @($rsv); $rok = $null; $rsv = $null;
- }  
- ## The ` sprinkles are used to keep ps event log clean, not quote the whole snippet on every run
- ################################################################################################################################ 
- 
- ## get script options
- $toggle = 1; $toggle_rev = 0; 
- $TOGGLE_SMARTSCREENFILTER = 1
+    
+$key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'
+    
+# Define types and modules
+$I = [int32]
+$M = $I.module.GetType("System.Runtime.InteropServices.Marshal")
+$P = $I.module.GetType("System.IntPtr")
+$S = [string]
+$D = @()
+$DM = [AppDomain]::CurrentDomain.DefineDynamicAssembly(1, 1).DefineDynamicModule(1)
+$U = [uintptr]
+$Z = [uintptr]::Size
 
- stop-service "wscsvc" -force -ea 0 >'' 2>''
- kill -name "OFFmeansOFF","MpCmdRun" -force -ea 0 
- 
- $HKLM = [uintptr][uint32]2147483650; $HKU = [uintptr][uint32]2147483651 
- $VALUES = "ServiceKeepAlive","PreviousRunningMode","IsServiceRunning","DisableAntiSpyware","DisableAntiVirus","PassiveMode"
- $DWORDS = 0, 0, 0, $toggle, $toggle, $toggle
- RegSetDwords $HKLM "SOFTWARE\Policies\Microsoft\Windows Defender" $VALUES $DWORDS 
- RegSetDwords $HKLM "SOFTWARE\Microsoft\Windows Defender" $VALUES $DWORDS
- [GC]::Collect(); sleep 1
- pushd "$env:programfiles\Windows Defender"
- $mpcmdrun=("OFFmeansOFF.exe","MpCmdRun.exe")[(test-path "MpCmdRun.exe")]
- start -wait $mpcmdrun -args "-DisableService -HighPriority"
- $wait=14
- while ((get-process -name "MsMpEng" -ea 0) -and $wait -gt 0) {$wait--; sleep 1;}
- 
- ## OFF means OFF
- pushd (split-path $(gp "HKLM:\SYSTEM\CurrentControlSet\Services\WinDefend" ImagePath -ea 0).ImagePath.Trim('"'))
- ren MpCmdRun.exe OFFmeansOFF.exe -force -ea 0
- 
+# Define dynamic types
+0..5 | ForEach-Object { $D += $DM.DefineType("AveYo_$_", 1179913, [ValueType]) }
+$D += $U
+4..6 | ForEach-Object { $D += $D[$_].MakeByRefType() }
 
- ## Comment to keep old scan history
- del "$env:ProgramData\Microsoft\Windows Defender\Scans\mpenginedb.db" -force -ea 0 
- del "$env:ProgramData\Microsoft\Windows Defender\Scans\History\Service" -recurse -force -ea 0
+# Define PInvoke methods
+$F = @(
+    'kernel', 'CreateProcess', ($S, $S, $I, $I, $I, $I, $I, $S, $D[7], $D[8]),
+    'advapi', 'RegOpenKeyEx', ($U, $S, $I, $I, $D[9]),
+    'advapi', 'RegSetValueEx', ($U, $S, $I, $I, [byte[]], $I),
+    'advapi', 'RegFlushKey', ($U),
+    'advapi', 'RegCloseKey', ($U)
+)
+0..4 | ForEach-Object { $9 = $D[0].DefinePInvokeMethod($F[3 * $_ + 1], $F[3 * $_] + "32", 8214, 1, $S, $F[3 * $_ + 2], 1, 4) }
 
- RegSetDwords $HKLM "SOFTWARE\Policies\Microsoft\Windows Defender" $VALUES $DWORDS 
- RegSetDwords $HKLM "SOFTWARE\Microsoft\Windows Defender" $VALUES $DWORDS
+# Define fields
+$DF = @(
+    ($P, $I, $P),
+    ($I, $I, $I, $I, $P, $D[1]),
+    ($I, $S, $S, $S, $I, $I, $I, $I, $I, $I, $I, $I, [int16], [int16], $P, $P, $P, $P),
+    ($D[3], $P),
+    ($P, $P, $I, $I)
+)
+1..5 | ForEach-Object { $k = $_; $n = 1; $DF[$_ - 1] | ForEach-Object { $9 = $D[$k].DefineField("f" + $n++, $_, 6) } }
 
- ## when toggling Defender, also toggle SmartScreen - set to 0 at top of the script to skip it
- if ($TOGGLE_SMARTSCREENFILTER -ne 0) {
-   sp "HKLM:\CurrentControlSet\Control\CI\Policy" 'VerifiedAndReputablePolicyState' 0 -type Dword -force -ea 0
-   sp "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" 'SmartScreenEnabled' @('Off','Warn')[$toggle -eq 0] -force -ea 0 
-   gi Registry::HKEY_Users\S-1-5-21*\Software\Microsoft -ea 0 |% {
-     sp "$($_.PSPath)\Windows\CurrentVersion\AppHost" 'EnableWebContentEvaluation' $toggle_rev -type Dword -force -ea 0
-     sp "$($_.PSPath)\Windows\CurrentVersion\AppHost" 'PreventOverride' $toggle_rev -type Dword -force -ea 0
-     ni "$($_.PSPath)\Edge\SmartScreenEnabled" -ea 0 > ''
-     sp "$($_.PSPath)\Edge\SmartScreenEnabled" "(Default)" $toggle_rev
-   }
-   if ($toggle_rev -eq 0) {kill -name smartscreen -force -ea 0}
- }
- 
- 
- ################################################################################################################################
-'@; $V = ''; 'id', 'key' | ForEach-Object { $V += "`n`$$_='$($(Get-Variable $_ -val)-replace"'","''")';" }; Set-ItemProperty $key $id $V, $code -type 7 -force -ea 0
-  Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -WindowStyle Hidden -Wait
+# Create types
+$T = @()
+0..5 | ForEach-Object { $T += $D[$_].CreateType() }
+
+# Create instances
+0..5 | ForEach-Object { New-Variable -Name "A$_" -Value ([Activator]::CreateInstance($T[$_])) -Force }
+
+# Define functions
+function F ($1, $2) { $T[0].GetMethod($1).Invoke(0, $2) }
+function M ($1, $2, $3) { $M.GetMethod($1, [type[]]$2).Invoke(0, $3) }
+
+# Allocate memory
+$H = @()
+$Z, (4 * $Z + 16) | ForEach-Object { $H += M "AllocHGlobal" $I $_ }
+
+# Check user and start service if necessary
+if ([environment]::username -ne "system") {
+    $TI = "TrustedInstaller"
+    Start-Service $TI -ErrorAction SilentlyContinue
+    $As = Get-Process -Name $TI -ErrorAction SilentlyContinue
+    M "WriteIntPtr" ($P, $P) ($H[0], $As.Handle)
+    $A1.f1 = 131072
+    $A1.f2 = $Z
+    $A1.f3 = $H[0]
+    $A2.f1 = 1
+    $A2.f2 = 1
+    $A2.f3 = 1
+    $A2.f4 = 1
+    $A2.f6 = $A1
+    $A3.f1 = 10 * $Z + 32
+    $A4.f1 = $A3
+    $A4.f2 = $H[1]
+    M "StructureToPtr" ($D[2], $P, [boolean]) (($A2 -as $D[2]), $A4.f2, $false)
+    $R = @($null, "powershell -nop -c iex(`$env:R); # $id", 0, 0, 0, 0x0E080610, 0, $null, ($A4 -as $T[4]), ($A5 -as $T[5]))
+    F 'CreateProcess' $R
+    return
 }
+
+# Clear environment variable
+$env:R = ''
+Remove-ItemProperty -Path $key -Name $id -Force -ErrorAction SilentlyContinue
+
+# Set privileges
+$e = [diagnostics.process].GetMember('SetPrivilege', 42)[0]
+'SeSecurityPrivilege', 'SeTakeOwnershipPrivilege', 'SeBackupPrivilege', 'SeRestorePrivilege' | ForEach-Object { $e.Invoke($null, @("$_", 2)) }
+
+# Define function to set registry DWORD values
+function RegSetDwords ($hive, $key, [array]$values, [array]$dword, $REG_TYPE = 4, $REG_ACCESS = 2, $REG_OPTION = 0) {
+    $rok = ($hive, $key, $REG_OPTION, $REG_ACCESS, ($hive -as $D[9]))
+    F "RegOpenKeyEx" $rok
+    $rsv = $rok[4]
+    $values | ForEach-Object { $i = 0 } { F "RegSetValueEx" ($rsv[0], [string]$_, 0, $REG_TYPE, [byte[]]($dword[$i]), 4); $i++ }
+    F "RegFlushKey" @($rsv)
+    F "RegCloseKey" @($rsv)
+    $rok = $null
+    $rsv = $null
+}
+
+
+ 
+    $disable = 1
+    $disable_rev = 0
+    $disable_SMARTSCREENFILTER = 1
+    #stop security center and defender commandline exe
+    stop-service 'wscsvc' -force -ErrorAction SilentlyContinue *>$null
+    Stop-Process -name 'OFFmeansOFF', 'MpCmdRun' -force -ErrorAction SilentlyContinue
+ 
+    $HKLM = [uintptr][uint32]2147483650 
+    $VALUES = 'ServiceKeepAlive', 'PreviousRunningMode', 'IsServiceRunning', 'DisableAntiSpyware', 'DisableAntiVirus', 'PassiveMode'
+    $DWORDS = 0, 0, 0, $disable, $disable, $disable
+    #apply registry values (not all will apply)
+    RegSetDwords $HKLM 'SOFTWARE\Policies\Microsoft\Windows Defender' $VALUES $DWORDS 
+    RegSetDwords $HKLM 'SOFTWARE\Microsoft\Windows Defender' $VALUES $DWORDS
+    [GC]::Collect() 
+    Start-Sleep 1
+    #run defender command line to disable msmpeng service
+    Push-Location "$env:programfiles\Windows Defender"
+    $mpcmdrun = ('OFFmeansOFF.exe', 'MpCmdRun.exe')[(test-path 'MpCmdRun.exe')]
+    Start-Process -wait $mpcmdrun -args '-DisableService -HighPriority'
+    #wait for service to close before continuing
+    $wait = 14
+    while ((get-process -name 'MsMpEng' -ea 0) -and $wait -gt 0) { 
+        $wait--
+        Start-Sleep 1
+    }
+ 
+    #rename defender commandline exe
+    $location = split-path $(Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\WinDefend' ImagePath -ErrorAction SilentlyContinue).ImagePath.Trim('"')
+    Push-Location $location
+    Rename-Item MpCmdRun.exe -NewName 'OFFmeansOFF.exe' -force -ErrorAction SilentlyContinue
+ 
+    #cleanup scan history
+    Remove-Item "$env:ProgramData\Microsoft\Windows Defender\Scans\mpenginedb.db" -force -ErrorAction SilentlyContinue
+    Remove-Item "$env:ProgramData\Microsoft\Windows Defender\Scans\History\Service" -recurse -force -ErrorAction SilentlyContinue
+
+    #apply keys that are blocked when msmpeng is running
+    RegSetDwords $HKLM 'SOFTWARE\Policies\Microsoft\Windows Defender' $VALUES $DWORDS 
+    RegSetDwords $HKLM 'SOFTWARE\Microsoft\Windows Defender' $VALUES $DWORDS
+
+    #disable smartscreen
+    if ($disable_SMARTSCREENFILTER) {
+        Set-ItemProperty 'HKLM:\CurrentControlSet\Control\CI\Policy' 'VerifiedAndReputablePolicyState' 0 -type Dword -force -ErrorAction SilentlyContinue
+        Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' 'SmartScreenEnabled' 'Off' -force -ErrorAction SilentlyContinue 
+        Get-Item Registry::HKEY_Users\S-1-5-21*\Software\Microsoft -ea 0 | ForEach-Object {
+            Set-ItemProperty "$($_.PSPath)\Windows\CurrentVersion\AppHost" 'EnableWebContentEvaluation' $disable_rev -type Dword -force -ErrorAction SilentlyContinue
+            Set-ItemProperty "$($_.PSPath)\Windows\CurrentVersion\AppHost" 'PreventOverride' $disable_rev -type Dword -force -ErrorAction SilentlyContinue
+            New-Item "$($_.PSPath)\Edge\SmartScreenEnabled" -ErrorAction SilentlyContinue *>$null
+            Set-ItemProperty "$($_.PSPath)\Edge\SmartScreenEnabled" '(Default)' $disable_rev -ErrorAction SilentlyContinue
+        }
+        if ($disable_rev -eq 0) { 
+            Stop-Process -name smartscreen -force -ErrorAction SilentlyContinue
+        }
+    }
+
+}
+defeatMsMpEng
+'@
+$script = New-Item "$env:TEMP\DefeatDefend.ps1" -Value $code -Force
+$run = "Start-Process powershell.exe -ArgumentList `"-executionpolicy bypass -File $($script.FullName) -Verb runas`""
+
 
 Write-Host 'Running Initial Stage...'
 
@@ -263,7 +348,7 @@ Reg.exe add 'HKLM\SYSTEM\ControlSet001\Control\Session Manager\kernel' /v 'Mitig
 Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender' /v 'PUAProtection' /t REG_DWORD /d '0' /f"
 Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' /v 'SmartScreenEnabled' /t REG_SZ /d 'Off' /f"
 #first run of defeat function
-defeatMsMpEng
+Run-Trusted -command $run
 Start-Sleep 3
 
 #temp anti virus credit https://github.com/es3n1n/no-defender
@@ -307,8 +392,7 @@ do {
 }while ($proc)
 
 Write-Host 'Disabling MsMpEng Service...'
-#edited toggle defender function https://github.com/AveYo/LeanAndMean
-defeatMsMpEng
+Run-Trusted -command $run
   
 #disables defender through gp edit
  
