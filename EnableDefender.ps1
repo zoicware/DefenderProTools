@@ -61,8 +61,9 @@ Reg delete 'HKLM\SYSTEM\ControlSet001\Control\Session Manager\kernel' /v 'Mitiga
 Reg add 'HKLM\SOFTWARE\Microsoft\Windows Defender' /v 'PUAProtection' /t REG_DWORD /d '2' /f
 Reg delete 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' /v 'SmartScreenEnabled' /f
 '@
+New-Item -Path "$env:TEMP\EnableDefend.bat" -Value $command -Force | Out-Null
 
-Run-Trusted -command $command
+Run-Trusted -command "Start-process $env:TEMP\EnableDefend.bat"
 Write-Host 'Enabling MsMpEng Service...'
 function enableMsMpEng {
     $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
@@ -148,6 +149,8 @@ Enable-WindowsOptionalFeature -Online -FeatureName 'Windows-Defender-Application
 #rename smartscreen
 $command = 'Rename-item -path C:\Windows\System32\smartscreenOFF.exe -newname smartscreen.exe -force -erroraction silentlycontinue' 
 Run-Trusted -command $command
+
+Remove-Item "$env:TEMP\EnableDefend.bat" -Force -ErrorAction SilentlyContinue
 
 [reflection.assembly]::loadwithpartialname('System.Windows.Forms') | Out-Null 
 $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Restart Computer?', 'zoicware', 'YesNo', 'Question')
