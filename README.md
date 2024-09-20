@@ -31,11 +31,9 @@ iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/StripDefend
 
 **USAGE EXAMPLE:**
 
-![image](https://github.com/zoicware/DefenderProTools/assets/118035521/4b1d0211-948a-4ca7-841d-89221b1161c1)
+![image](https://github.com/user-attachments/assets/e3b71810-a3a1-481d-b576-8fe8a8469991)
 
 ![image](https://github.com/zoicware/DefenderProTools/assets/118035521/56a5e59c-ca57-4732-9713-c640159c0872)
-
-![image](https://github.com/zoicware/DefenderProTools/assets/118035521/761502d9-5f49-46f2-95c5-bdb44238823c)
 
 
 
