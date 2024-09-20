@@ -17,6 +17,13 @@
 
 This powershell script will use dism and trusted installer privileges to remove defender permanently from the latest Windows 10 and 11 ISO files.
 
+### Additional Options
+
+- Strip Windows Defender Firewall
+- Disable Virtualization-based Security (VBS) and Mitigation Options Includes [Data Execution Prevention, Control Flow Guard, Randomize Memory Allocations, Validate exception chains, Validate Heap Integrity]
+- Strip Bitlocker
+
+
 ***Run Script from Console***
 ````ps
 iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/StripDefenderV3.ps1 | iex
