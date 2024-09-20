@@ -108,6 +108,16 @@ Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "Sm
 Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\Windows\System" /v "EnableSmartScreen" /t REG_DWORD /d "0" /f >nul 2>&1
 Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\Windows Defender\SmartScreen" /v "ConfigureAppInstallControl" /t REG_SZ /d "Anywhere" /f >nul 2>&1
 Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\Windows Defender\SmartScreen" /v "ConfigureAppInstallControlEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components" /v "CaptureThreatWindow" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components" /v "NotifyMalicious" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components" /v "NotifyPasswordReuse" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components" /v "NotifyUnsafeApp" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components" /v "ServiceEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows Defender" /v "VerifiedAndReputableTrustModeEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows Defender" /v "SmartLockerMode" /t REG_DWORD /d "0" >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access" /v "EnableControlledFolderAccess" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Edge\SmartScreenEnabled" /ve /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Edge\SmartScreenPuaEnabled" /ve /t REG_DWORD /d "0" /f >nul 2>&1
 Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:windowsdefender;" /f >nul 2>&1
 '@
 
@@ -203,6 +213,7 @@ function remove-Defender([String]$folderPath, [String]$edition, [String]$removeD
     Remove-File -path "$removeDir\Windows\System32\SecurityHealth*"
     Remove-File -path "$removeDir\Windows\System32\SecurityCenter*"
     Remove-File -path "$removeDir\Windows\System32\smartscreen.exe" 
+    Remove-File -path "$removeDir\Windows\System32\CodeIntegrity\CiPolicies\Active\*" 
 
     #win11 sec app
     if ($edition -like '*Windows 11*') {
@@ -226,6 +237,93 @@ function remove-Defender([String]$folderPath, [String]$edition, [String]$removeD
     reg load HKLM\OFFLINE_DEFAULT "$removeDir\Windows\System32\config\default"
 
     Disable-Defender -edition $edition
+
+    #additional sec options
+    if ($stripFirewall) {
+        Write-Host 'Stripping Firewall...'
+        $disableContent = @'
+Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
+Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\PublicProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
+Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\PrivateProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
+Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\PublicProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Services\mpssvc" /v "Start" /t REG_DWORD /d "4" /f
+'@
+
+        $dPath = New-Item "$env:TEMP\disableFirewall.bat" -Value $disableContent -Force
+
+        $command = "Start-Process `'$($dPath.FullName)`'"
+        Run-Trusted -command $command 
+        #firewall files
+        $firefiles = @(
+            'Windows\SystemResources\FirewallControlPanel.dll.mun',
+            'Windows\System32\Firewall.cpl',
+            # 'Windows\SystemResources\FirewallUX.dll.mun',
+            # 'Windows\System32\en-US\FirewallUX.dll.mui',
+            'Windows\System32\en-US\FirewallControlPanel.dll.mui',
+            'Windows\SysWOW64\en-US\FirewallControlPanel.dll.mui',
+            # 'Windows\System32\en-US\FirewallAPI.dll.mui',
+            # 'Windows\System32\FirewallAPI.dll',
+            # 'Windows\SysWOW64\FirewallAPI.dll',
+            # 'Windows\System32\FirewallUX.dll',
+            'Windows\System32\FirewallControlPanel.dll',
+            'Windows\SysWOW64\FirewallControlPanel.dll'
+        )
+
+
+        foreach ($file in $firefiles) {
+            Remove-File -path "$removeDir\$file"
+        }
+        
+        Remove-Item $dPath.FullName -Force -ErrorAction SilentlyContinue 
+    }
+
+    if ($disableMitigations) {
+        Write-Host 'Disabling Mitigation Options...'
+        $disableContent = @'
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\Session Manager\kernel" /v "MitigationOptions" /t REG_BINARY /d "222022000002000000020000000000000000000000000000" /f
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard" /v "EnableVirtualizationBasedSecurity" /t REG_DWORD /d "2" /f
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard" /v "HypervisorEnforcedCodeIntegrity" /t REG_DWORD /d "0" /f
+Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\RequirePlatformSecurityFeatures" /v "value" /t REG_DWORD /d "0" /f
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "Enabled" /t REG_DWORD /d "0" /f
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\CredentialGuard" /v "Enabled" /t REG_DWORD /d "0" /f
+'@ 
+        $dPath = New-Item "$env:TEMP\disableMitigations.bat" -Value $disableContent -Force
+
+        $command = "Start-Process `'$($dPath.FullName)`'"
+        Run-Trusted -command $command 
+        Start-Sleep 1
+        Remove-Item $dPath.FullName -Force -ErrorAction SilentlyContinue
+    }
+
+    if ($stripBitlocker) {
+        Write-Host 'Stripping Bitlocker...'
+        $command = "
+        Reg add 'HKLM\OFFLINE_SYSTEM\ControlSet001\Services\BDESVC' /v 'Start' /t REG_DWORD /d '4' /f
+        Reg add 'HKLM\OFFLINE_SYSTEM\ControlSet001\Control\BitLocker' /v 'PreventDeviceEncryption' /t REG_DWORD /d '1' /f
+        Reg add 'HKLM\OFFLINE_SYSTEM\ControlSet001\Control\BitlockerStatus' /v 'BootStatus' /t REG_DWORD /d '0' /f
+        "
+        Run-Trusted -command $command
+        #remove files
+        $bitlockerfiles = @(
+            'Windows\BitLockerDiscoveryVolumeContents\BitLockerToGo.exe',
+            'Windows\SysWOW64\BitLockerCsp.dll',
+            'Windows\System32\BitLockerCsp.dll',
+            'Windows\System32\BitLockerWizard.exe',
+            'Windows\System32\BitLockerWizardElev.exe',
+            'Windows\System32\BitLockerDeviceEncryption.exe',
+            'Windows\System32\en-US\BitLockerWizardElev.exe.mui',
+            'Windows\System32\en-US\BitLockerWizard.exe.mui'
+        )
+
+
+        foreach ($file in $bitlockerfiles) {
+            Remove-File -path "$removeDir\$file"
+        }
+        
+
+    }
 
     reg unload HKLM\OFFLINE_SOFTWARE
     reg unload HKLM\OFFLINE_SYSTEM
@@ -261,6 +359,37 @@ $isoLabel.Size = New-Object System.Drawing.Size(120, 20)
 $isoLabel.Text = 'Choose ISO File:'
 $isoLabel.ForeColor = 'White'
 $form.Controls.Add($isoLabel)
+
+$additionalLabel = New-Object System.Windows.Forms.Label
+$additionalLabel.Location = New-Object System.Drawing.Point(10, 100)
+$additionalLabel.Size = New-Object System.Drawing.Size(200, 20)
+$additionalLabel.Text = 'Strip Additional Security Features:'
+$additionalLabel.ForeColor = 'White'
+$form.Controls.Add($additionalLabel)
+
+$checkbox1 = New-Object System.Windows.Forms.CheckBox
+$checkbox1.Location = new-object System.Drawing.Size(15, 120)
+$checkbox1.Size = new-object System.Drawing.Size(80, 20)
+$checkbox1.Text = 'Firewall'
+$checkbox1.ForeColor = 'White'
+$checkbox1.Checked = $false
+$Form.Controls.Add($checkbox1) 
+
+$checkbox2 = New-Object System.Windows.Forms.CheckBox
+$checkbox2.Location = new-object System.Drawing.Size(100, 120)
+$checkbox2.Size = new-object System.Drawing.Size(120, 20)
+$checkbox2.Text = 'Mitigation Options'
+$checkbox2.ForeColor = 'White'
+$checkbox2.Checked = $false
+$Form.Controls.Add($checkbox2) 
+
+$checkbox3 = New-Object System.Windows.Forms.CheckBox
+$checkbox3.Location = new-object System.Drawing.Size(230, 120)
+$checkbox3.Size = new-object System.Drawing.Size(120, 20)
+$checkbox3.Text = 'Bitlocker'
+$checkbox3.ForeColor = 'White'
+$checkbox3.Checked = $false
+$Form.Controls.Add($checkbox3) 
 
 $isoTextBox = New-Object System.Windows.Forms.TextBox
 $isoTextBox.Location = New-Object System.Drawing.Point(130, 20)
@@ -337,6 +466,20 @@ $removeButton.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromAr
 $removeButton.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
 $removeButton.Text = 'Remove Defender'
 $removeButton.Add_Click({
+
+        #check additional options
+        $Global:stripFirewall = $false
+        $Global:disableMitigations = $false
+        $Global:stripBitlocker = $false
+        if ($checkbox1.Checked) {
+            $stripFirewall = $true
+        }
+        if ($checkbox2.Checked) {
+            $disableMitigations = $true
+        }
+        if ($checkbox3.Checked) {
+            $stripBitlocker = $true
+        }
         
         if ($isoTextBox.Text -eq '' -or $destTextBox.Text -eq '') {
             Write-Host 'Please Select an ISO file and Destination folder'
@@ -522,7 +665,6 @@ $removeButton.Add_Click({
             Get-ChildItem -Path $removeDir -Recurse -Force | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
             Remove-Item -Path $removeDir -Recurse -Force -ErrorAction SilentlyContinue
 
-            Write-Host 'DONE!'
         }
 
         
@@ -531,5 +673,5 @@ $removeButton.Add_Click({
 $form.Controls.Add($removeButton)
 
 # Show the form
-$form.ShowDialog()
+$form.ShowDialog() | Out-Null
 
