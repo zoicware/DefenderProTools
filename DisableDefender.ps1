@@ -6,6 +6,561 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
   Exit	
 }
 
+#reg files
+$file1 = @'
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender]
+"DisableRoutinelyTakingAction"=dword:00000001
+"ServiceKeepAlive"=dword:00000000
+"AllowFastServiceStartup"=dword:00000000
+"DisableLocalAdminMerge"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection]
+"LocalSettingOverrideDisableOnAccessProtection"=dword:00000000
+"LocalSettingOverrideRealtimeScanDirection"=dword:00000000
+"LocalSettingOverrideDisableIOAVProtection"=dword:00000000
+"LocalSettingOverrideDisableBehaviorMonitoring"=dword:00000000
+"LocalSettingOverrideDisableIntrusionPreventionSystem"=dword:00000000
+"LocalSettingOverrideDisableRealtimeMonitoring"=dword:00000000
+"DisableIOAVProtection"=dword:00000001
+"DisableRealtimeMonitoring"=dword:00000001
+"DisableBehaviorMonitoring"=dword:00000001
+"DisableOnAccessProtection"=dword:00000001
+"DisableScanOnRealtimeEnable"=dword:00000001
+"RealtimeScanDirection"=dword:00000002
+"DisableInformationProtectionControl"=dword:00000001
+"DisableIntrusionPreventionSystem"=dword:00000001
+"DisableRawWriteNotification"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowBehaviorMonitoring]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Policies\Microsoft\Windows Defender]
+"DisableRoutinelyTakingAction"=dword:00000001
+'@
+$file2 = @'
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIOAVProtection]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender]
+"PUAProtection"=dword:00000000
+"DisableRoutinelyTakingAction"=dword:00000001
+"ServiceKeepAlive"=dword:00000000
+"AllowFastServiceStartup"=dword:00000000
+"DisableLocalAdminMerge"=dword:00000001
+"DisableAntiSpyware"=dword:00000001
+"RandomizeScheduleTaskTimes"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowArchiveScanning]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowBehaviorMonitoring]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowCloudProtection]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowEmailScanning]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanOnMappedNetworkDrives]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanRemovableDriveScanning]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIntrusionPreventionSystem]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowOnAccessProtection]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowRealtimeMonitoring]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScanningNetworkFiles]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScriptScanning]
+"value"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowUserUIAccess]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AvgCPULoadFactor]
+"value"=dword:00000032
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\CheckForSignaturesBeforeRunningScan]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudBlockLevel]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudExtendedTimeout]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\DaysToRetainCleanedMalware]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupFullScan]
+"value"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupQuickScan]
+"value"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableControlledFolderAccess]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableLowCPUPriority]
+"value"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableNetworkProtection]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\PUAProtection]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\RealTimeScanDirection]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScanParameter]
+"value"=dword:00000002
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanDay]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanTime]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\SignatureUpdateInterval]
+"value"=dword:00000018
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\SubmitSamplesConsent]
+"value"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Exclusions]
+"DisableAutoExclusions"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine]
+"MpEnablePus"=dword:00000000
+"MpCloudBlockLevel"=dword:00000000
+"MpBafsExtendedTimeout"=dword:00000000
+"EnableFileHashComputation"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS]
+"ThrottleDetectionEventsRate"=dword:00000000
+"DisableSignatureRetirement"=dword:00000001
+"DisableProtocolRecognition"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Policy Manager]
+"DisableScanningNetworkFiles"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection]
+"DisableRealtimeMonitoring"=dword:00000001
+"DisableBehaviorMonitoring"=dword:00000001
+"DisableOnAccessProtection"=dword:00000001
+"DisableScanOnRealtimeEnable"=dword:00000001
+"DisableIOAVProtection"=dword:00000001
+"LocalSettingOverrideDisableOnAccessProtection"=dword:00000000
+"LocalSettingOverrideRealtimeScanDirection"=dword:00000000
+"LocalSettingOverrideDisableIOAVProtection"=dword:00000000
+"LocalSettingOverrideDisableBehaviorMonitoring"=dword:00000000
+"LocalSettingOverrideDisableIntrusionPreventionSystem"=dword:00000000
+"LocalSettingOverrideDisableRealtimeMonitoring"=dword:00000000
+"RealtimeScanDirection"=dword:00000002
+"IOAVMaxSize"=dword:00000512
+"DisableInformationProtectionControl"=dword:00000001
+"DisableIntrusionPreventionSystem"=dword:00000001
+"DisableRawWriteNotification"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Scan]
+"LowCpuPriority"=dword:00000001
+"DisableRestorePoint"=dword:00000001
+"DisableArchiveScanning"=dword:00000000
+"DisableScanningNetworkFiles"=dword:00000000
+"DisableCatchupFullScan"=dword:00000000
+"DisableCatchupQuickScan"=dword:00000001
+"DisableEmailScanning"=dword:00000000
+"DisableHeuristics"=dword:00000001
+"DisableReparsePointScanning"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates]
+"SignatureDisableNotification"=dword:00000001
+"RealtimeSignatureDelivery"=dword:00000000
+"ForceUpdateFromMU"=dword:00000000
+"DisableScheduledSignatureUpdateOnBattery"=dword:00000001
+"UpdateOnStartUp"=dword:00000000
+"SignatureUpdateCatchupInterval"=dword:00000002
+"DisableUpdateOnStartupWithoutEngine"=dword:00000001
+"ScheduleTime"=dword:00001440
+"DisableScanOnUpdate"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet]
+"DisableBlockAtFirstSeen"=dword:00000001
+"LocalSettingOverrideSpynetReporting"=dword:00000000
+"SpynetReporting"=dword:00000000
+"SubmitSamplesConsent"=dword:00000002
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\UX Configuration]
+"SuppressRebootNotification"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access]
+"EnableControlledFolderAccess"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection]
+"EnableNetworkProtection"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Policies\Microsoft\Windows Defender]
+"DisableRoutinelyTakingAction"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Microsoft Antimalware]
+"ServiceKeepAlive"=dword:00000000
+"AllowFastServiceStartup"=dword:00000000
+"DisableRoutinelyTakingAction"=dword:00000001
+"DisableAntiSpyware"=dword:00000001
+"DisableAntiVirus"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Microsoft Antimalware\SpyNet]
+"SpyNetReporting"=dword:00000000
+"LocalSettingOverrideSpyNetReporting"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Reporting]
+"DisableEnhancedNotifications"=dword:00000001
+"DisableGenericRePorts"=dword:00000001
+"WppTracingLevel"=dword:00000000
+"WppTracingComponents"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CI\Policy]
+"VerifiedAndReputablePolicyState"=dword:00000000
+'@
+$file3 = @'
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableEnhancedNotifications]
+"value"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableNotifications]
+"value"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\HideWindowsSecurityNotificationAreaControl]
+"value"=dword:00000001
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Security Center]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Security Center]
+"FirstRunDisabled"=dword:00000001
+"AntiVirusOverride"=dword:00000001
+"FirewallOverride"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications]
+"DisableEnhancedNotifications"=dword:00000001
+"DisableNotifications"=dword:00000001
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance]
+"Enabled"=dword:00000000
+'@
+$file4 = @'
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
+"VerboseStatus"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability]
+"ShutdownReasonOn"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Reliability]
+"ShutdownReasonOn"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows]
+"ShutdownWarningDialogTimeout"=dword:00000001
+
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"AutoEndTasks"="1"
+"MenuShowDelay"="1"
+"ForegroundLockTimeout"=dword:00000000
+"WaitToKillAppTimeout"="1"
+"WaitToKillServiceTimeout"=dword:00000001
+"HungAppTimeout"="1000"
+"LowLevelHooksTimeout"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control]
+"WaitToKillServiceTimeout"="1"
+"DisableRemoteScmEndpoints"dword:00000000
+"HandlerTimeout"=dword:7FFFFFFF
+"ServicesPipeTimeout"=dword:00240000
+
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control]
+"WaitToKillServiceTimeout"="1"
+"DisableRemoteScmEndpoints"dword:00000000
+"HandlerTimeout"=dword:7FFFFFFF
+"ServicesPipeTimeout"=dword:00240000
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\PnP]
+"PollBootPartitionTimeout"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+"ThumbnailLivePreviewHoverTime"=dword:00000001
+'@
+$file5 = @'
+Windows Registry Editor Version 5.00
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{2781761E-28E0-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{2781761E-28E2-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{195B4D07-3DE2-4744-BBF2-D90121AE785B}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{361290c0-cb1b-49ae-9f3e-ba1cbe5dab35}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{45F2C32F-ED16-4C94-8493-D72EF93A051B}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{6CED0DAA-4CDE-49C9-BA3A-AE163DC3D7AF}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{8a696d12-576b-422e-9712-01b9dd84b446}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{8C9C0DB7-2CBA-40F1-AFE0-C55740DD91A0}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{A2D75874-6750-4931-94C1-C99D3BC9D0C7}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{A7C452EF-8E9F-42EB-9F2B-245613CA0DC9}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{DACA056E-216A-4FD1-84A6-C306A017ECEC}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{E3C9166D-1D39-4D4E-A45D-BC7BE9B00578}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\WOW6432Node\CLSID\{F6976CF5-68A8-436C-975A-40BE53616D59}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{2781761E-28E0-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{2781761E-28E2-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{195B4D07-3DE2-4744-BBF2-D90121AE785B}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{361290c0-cb1b-49ae-9f3e-ba1cbe5dab35}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{45F2C32F-ED16-4C94-8493-D72EF93A051B}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{6CED0DAA-4CDE-49C9-BA3A-AE163DC3D7AF}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{8a696d12-576b-422e-9712-01b9dd84b446}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{8C9C0DB7-2CBA-40F1-AFE0-C55740DD91A0}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{A2D75874-6750-4931-94C1-C99D3BC9D0C7}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{A7C452EF-8E9F-42EB-9F2B-245613CA0DC9}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{DACA056E-216A-4FD1-84A6-C306A017ECEC}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{E3C9166D-1D39-4D4E-A45D-BC7BE9B00578}]
+
+[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{F6976CF5-68A8-436C-975A-40BE53616D59}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{2781761E-28E0-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{2781761E-28E2-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{195B4D07-3DE2-4744-BBF2-D90121AE785B}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{361290c0-cb1b-49ae-9f3e-ba1cbe5dab35}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{45F2C32F-ED16-4C94-8493-D72EF93A051B}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{6CED0DAA-4CDE-49C9-BA3A-AE163DC3D7AF}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{8a696d12-576b-422e-9712-01b9dd84b446}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{8C9C0DB7-2CBA-40F1-AFE0-C55740DD91A0}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{A2D75874-6750-4931-94C1-C99D3BC9D0C7}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{A7C452EF-8E9F-42EB-9F2B-245613CA0DC9}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{DACA056E-216A-4FD1-84A6-C306A017ECEC}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{E3C9166D-1D39-4D4E-A45D-BC7BE9B00578}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{F6976CF5-68A8-436C-975A-40BE53616D59}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{2781761E-28E0-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{2781761E-28E2-4109-99FE-B9D127C57AFE}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{195B4D07-3DE2-4744-BBF2-D90121AE785B}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{361290c0-cb1b-49ae-9f3e-ba1cbe5dab35}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{45F2C32F-ED16-4C94-8493-D72EF93A051B}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{6CED0DAA-4CDE-49C9-BA3A-AE163DC3D7AF}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{8a696d12-576b-422e-9712-01b9dd84b446}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{8C9C0DB7-2CBA-40F1-AFE0-C55740DD91A0}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{A2D75874-6750-4931-94C1-C99D3BC9D0C7}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{A7C452EF-8E9F-42EB-9F2B-245613CA0DC9}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{DACA056E-216A-4FD1-84A6-C306A017ECEC}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{E3C9166D-1D39-4D4E-A45D-BC7BE9B00578}]
+
+[-HKEY_CLASSES_ROOT\CLSID\{F6976CF5-68A8-436C-975A-40BE53616D59}]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DefenderAuditLogger]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DefenderApiLogger]
+'@
+$file6 = @'
+Windows Registry Editor Version 5.00
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\{0ACC9108-2000-46C0-8407-5FD9F89521E8}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\{1D77BCC8-1D07-42D0-8C89-3A98674DFB6F}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\{4A9233DB-A7D3-45D6-B476-8C7D8DF73EB5}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\{B05F34EE-83F2-413D-BC1D-7D5BD6E98300}]
+'@
+$file7 = @'
+Windows Registry Editor Version 5.00
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MsSecCore]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\wscsvc]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WdNisDrv]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WdNisSvc]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WdFilter]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WdBoot]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SecurityHealthService]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SgrmAgent]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SgrmBroker]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinDefend]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\App and Browser protection]
+"DisallowExploitProtectionOverride"=dword:00000001
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MsSecFlt]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MsSecWfp]
+'@
+$file8 = @'
+Windows Registry Editor Version 5.00
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinDefend]
+
+[-HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\windowsdefender]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AppUserModelId\Windows.Defender]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AppUserModelId\Microsoft.Windows.Defender]
+
+[-HKEY_CLASSES_ROOT\AppX9kvz3rdv8t7twanaezbwfcdgrbg3bck0]
+
+[-HKEY_CURRENT_USER\Software\Classes\ms-cxh]
+
+[-HKEY_CLASSES_ROOT\Local Settings\MrtCache\C:%5CWindows%5CSystemApps%5CMicrosoft.Windows.AppRep.ChxApp_cw5n1h2txyewy%5Cresources.pri]
+
+[-HKEY_CLASSES_ROOT\WindowsDefender]
+
+[-HKEY_CURRENT_USER\Software\Classes\AppX9kvz3rdv8t7twanaezbwfcdgrbg3bck0]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\WindowsDefender]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Ubpm]
+"CriticalMaintenance_DefenderCleanup"=-
+"CriticalMaintenance_DefenderVerification"=-
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Ubpm]
+"CriticalMaintenance_DefenderCleanup"=-
+"CriticalMaintenance_DefenderVerification"=-
+
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\RestrictedServices\Static\System]
+"WindowsDefender-1"=-
+"WindowsDefender-2"=-
+"WindowsDefender-3"=-
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\RestrictedServices\Static\System]
+"WindowsDefender-1"=-
+"WindowsDefender-2"=-
+"WindowsDefender-3"=-
+'@
+$file9 = @'
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates]
+"SignatureDisableNotification"=dword:00000001
+"RealtimeSignatureDelivery"=dword:00000000
+"ForceUpdateFromMU"=dword:00000000
+"DisableScheduledSignatureUpdateOnBattery"=dword:00000001
+"UpdateOnStartUp"=dword:00000000
+"SignatureUpdateCatchupInterval"=dword:00000002
+"DisableUpdateOnStartupWithoutEngine"=dword:00000001
+"ScheduleTime"=dword:00001440
+"DisableScanOnUpdate"=dword:00000001
+'@
+$file10 = @'
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+"Windows Defender"=-
+"SecurityHealth"=-
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run]
+"Windows Defender"=-
+"SecurityHealth"=-
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+"WindowsDefender"=-
+"SecurityHealth"=-
+'@
+$file11 = @'
+Windows Registry Editor Version 5.00
+
+[-HKEY_CLASSES_ROOT\CLSID\{E48B2549-D510-4A76-8A5F-FC126A6215F0}]
+
+[-HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{E48B2549-D510-4A76-8A5F-FC126A6215F0}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\CLSID\{E48B2549-D510-4A76-8A5F-FC126A6215F0}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\WOW6432Node\CLSID\{E48B2549-D510-4A76-8A5F-FC126A6215F0}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Microsoft.OneCore.WebThreatDefense.Service.UserSessionServiceManager]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Microsoft.OneCore.WebThreatDefense.ThreatExperienceManager.ThreatExperienceManager]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Microsoft.OneCore.WebThreatDefense.ThreatResponseEngine.ThreatDecisionEngine]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Microsoft.OneCore.WebThreatDefense.Configuration.WTDUserSettings]
+'@
+$file12 = @'
+Windows Registry Editor Version 5.00
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{900c0763-5cad-4a34-bc1f-40cd513679d5}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{900c0763-5cad-4a34-bc1f-40cd513679d5}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender]
+
+[-HKEY_CLASSES_ROOT\Folder\shell\WindowsDefender]
+
+[-HKEY_CLASSES_ROOT\DesktopBackground\Shell\WindowsSecurity]
+
+[-HKEY_CLASSES_ROOT\Folder\shell\WindowsDefender\Command]
+'@
+
 #exploit trusted installer service bin path
 function Run-Trusted([String]$command) {
 
@@ -26,152 +581,6 @@ function Run-Trusted([String]$command) {
 
 }
 
-
-<#
-#check if tamper protection is disabled already
-$key = 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender\Features'
-try {
-  $tamper = Get-ItemPropertyValue -Path $key -Name 'TamperProtection' -ErrorAction Stop
-  $tamperSource = Get-ItemPropertyValue -Path $key -Name 'TamperProtectionSource' -ErrorAction Stop
-}
-catch {
-  #do nothing
-}
-      
-if ((!($tamper -eq '4' -or '0' -and $tamperSource -eq '2')) -or !((Get-MpPreference).DisableTamperProtection)) {
-       
-  #display prompt to user
-  [reflection.assembly]::loadwithpartialname('System.Windows.Forms') | Out-Null 
-  [System.Windows.Forms.MessageBox]::Show('Please DO NOT Press Any Keys While Script Disables Tamper Protection.', 'ZOICWARE')
-
-  #get current uac settings
-  $key = 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
-  $promptValue = Get-ItemPropertyValue -Path $key -Name 'PromptOnSecureDesktop' -ErrorAction SilentlyContinue
-  $luaValue = Get-ItemPropertyValue -Path $key -Name 'EnableLUA' -ErrorAction SilentlyContinue
-  $promptValueAdmin = Get-ItemPropertyValue -Path $key -Name 'ConsentPromptBehaviorAdmin' -ErrorAction SilentlyContinue
-
-  #disable uac to avoid popup when disabling tamper protection
-  $command = {
-    Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' /v 'PromptOnSecureDesktop' /t REG_DWORD /d '0' /f
-    Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' /v 'EnableLUA' /t REG_DWORD /d '0' /f
-    Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' /v 'ConsentPromptBehaviorAdmin' /t REG_DWORD /d '0' /f
-  }
-  Invoke-Command $command | Out-Null
-
-  #open security app 
-  Start-Process -FilePath explorer.exe -ArgumentList windowsdefender://threat -WindowStyle Maximized 
-  Start-Sleep 2
-  #full screen the app with key shortcuts
-  $wshell = New-Object -ComObject wscript.shell
-  Add-Type -TypeDefinition @'
-using System;
-using System.Runtime.InteropServices;
-public class Keyboard
-{
-    [DllImport("user32.dll")]
-    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
-}
-'@
-
-  # Define key codes
-  $VK_ALT = 0x12  # Alt key code
-  $VK_SPACE = 0x20  # Space key code
-  $VK_X = 0x58  # X key code
-
-  # Simulate Alt+Space keystroke combination
-  [Keyboard]::keybd_event($VK_ALT, 0, 0, 0)
-  [Keyboard]::keybd_event($VK_SPACE, 0, 0, 0)
-  Start-Sleep -Milliseconds 100  # Wait for a moment
-  [Keyboard]::keybd_event($VK_SPACE, 0, 0x2, 0)
-  [Keyboard]::keybd_event($VK_ALT, 0, 0x2, 0)
-
-  # Press the 'X' key
-  [Keyboard]::keybd_event($VK_X, 0, 0, 0)
-  Start-Sleep -Milliseconds 100  # Wait for a moment
-  [Keyboard]::keybd_event($VK_X, 0, 0x2, 0)
-
-  Start-Sleep 2
-  #get os version
-  $OS = Get-CimInstance Win32_OperatingSystem
-  #navigate to tamper protection and turn off
-  #different options on windows 11 sec app so more tabs are needed to get to tamper protection
-
-  if ($OS.Caption -like '*Windows 11*') {
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .35
-    $wshell.SendKeys(' ')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .35
-    $wshell.SendKeys(' ')
-  }
-  else {
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .35
-    $wshell.SendKeys(' ')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .55
-    $wshell.SendKeys('{TAB}')
-    Start-Sleep .35
-    $wshell.SendKeys(' ')
-  }
-  Start-Sleep .75
-  #close sec app
-  Stop-Process -name SecHealthUI -Force
-
-  #set uac back to og values
-  $command = {
-    Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' /v 'PromptOnSecureDesktop' /t REG_DWORD /d $promptValue /f
-    Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' /v 'EnableLUA' /t REG_DWORD /d $luaValue /f
-    Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' /v 'ConsentPromptBehaviorAdmin' /t REG_DWORD /d $promptValueAdmin /f
-  }
-  Invoke-Command $command | Out-Null
-
-  #update tamper values
-  $key = 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender\Features'
-  try {
-    $tamper = Get-ItemPropertyValue -Path $key -Name 'TamperProtection' -ErrorAction Stop
-    $tamperSource = Get-ItemPropertyValue -Path $key -Name 'TamperProtectionSource' -ErrorAction Stop
-  }
-  catch {
-    #do nothing
-  }
-}
-      
-#check again if tamper got disabled
-if ((!($tamper -eq '4' -or '0' -and $tamperSource -eq '2')) -or !((Get-MpPreference).DisableTamperProtection)) {
-  Write-Host 'Tamper Protection NOT Disabled...Closing Script' -ForegroundColor Red
-}
-#>
 
 #refactor of https://github.com/AveYo/LeanAndMean/blob/main/disableDefender.ps1
 $code = @'
@@ -347,58 +756,11 @@ Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender Security Center\Virus and 
 Reg.exe add 'HKLM\SYSTEM\ControlSet001\Control\Session Manager\kernel' /v 'MitigationOptions' /t REG_BINARY /d '222222000001000000000000000000000000000000000000' /f *>$null
 Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender' /v 'PUAProtection' /t REG_DWORD /d '0' /f"
 Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' /v 'SmartScreenEnabled' /t REG_SZ /d 'Off' /f"
-#first run of defeat function
-Run-Trusted -command $run
-Start-Sleep 3
 
-#temp anti virus credit https://github.com/es3n1n/no-defender
-Write-Host 'Installing Temp Antivirus...'
-$ProgressPreference = 'SilentlyContinue'
-$tempDir = "$env:TEMP\nodefender"
-New-item -Path $tempDir -ItemType Directory -Force | Out-Null
-#add dir to exclusion
-Add-MpPreference -ExclusionPath $tempDir -Force 
-Add-MpPreference -ExclusionProcess 'ilovedefender.exe' -Force 
-$splat = @{
-  DisableBehaviorMonitoring        = $true 
-  DisableIntrusionPreventionSystem = $true 
-  DisableRealtimeMonitoring        = $true 
-  DisableBlockAtFirstSeen          = $true 
-}
-Set-MpPreference -ExclusionProcess 'ilovedefender.exe' @splat 
-#install files
-$uri = 'https://raw.githubusercontent.com/zoicware/DefenderProTools/main/Resources/nodefender'
-$files = @(
-  'ilovedefender.exe'
-  'no-defender-loader.pdb'
-  'powrprof.dll'
-  'powrprof.pdb'
-  'wsc.dll'
-  'wsc_proxy.exe'
-)
-foreach ($file in $files) {
-  Invoke-WebRequest -Uri "$uri/$file" -OutFile "$tempDir\$file" -UseBasicParsing
-}
-#attempt to kill defender processes and silence notifications from sec center
-$command = 'Stop-Process MpDefenderCoreService -Force; Stop-Process smartscreen -Force; Stop-Process SecurityHealthService -Force; Stop-Process SecurityHealthSystray -Force; Stop-Service -Name wscsvc -Force; Stop-Service -Name Sense -Force'
-Run-Trusted -command $command
-#run no defender
-Start-Process "$tempDir\ilovedefender.exe" -ArgumentList '--av' -WindowStyle Hidden
 
-#wait for defender service to close before continue
-do {
-  $proc = Get-Process -Name MsMpEng -ErrorAction SilentlyContinue
-  Start-Sleep 1
-}while ($proc)
+Write-Host 'Disabling Defender with Registry Hacks...' 
 
-Write-Host 'Disabling MsMpEng Service...'
-Run-Trusted -command $run
-  
-#disables defender through gp edit
- 
-Write-Host 'Disabling Defender with Group Policy' 
-
-$command = @'
+$scriptContent = @'
 Reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d "1" /f
 Reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v "DisableRealtimeMonitoring" /t REG_DWORD /d "1" /f
 Reg add "HKLM\SYSTEM\CurrentControlSet\Services\SecurityHealthService" /v "Start" /t REG_DWORD /d "4" /f 
@@ -421,9 +783,34 @@ Reg add "HKLM\SYSTEM\ControlSet001\Services\webthreatdefsvc" /v "Start" /t REG_D
 Reg add "HKLM\SYSTEM\ControlSet001\Services\webthreatdefusersvc" /v "Start" /t REG_DWORD /d "4" /f
 Reg add "HKLM\SOFTWARE\Microsoft\Windows Security Health\State" /v "AppAndBrowser_StoreAppsSmartScreenOff" /t REG_DWORD /d 0 /f 
 '@
-
-
+New-Item -Path "$env:TEMP\disableScript.ps1" -Value $scriptContent -Force | Out-Null
+$command = "Start-Process powershell.exe -ArgumentList `"-ExecutionPolicy Bypass -file `"$env:TEMP\disableScript.ps1`"`""
 Run-Trusted -command $command
+
+New-item -Path "$env:TEMP\disableReg" -ItemType Directory -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable1.reg" -Value $file1 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable2.reg" -Value $file2 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable3.reg" -Value $file3 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable4.reg" -Value $file4 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable5.reg" -Value $file5 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable6.reg" -Value $file6 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable7.reg" -Value $file7 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable8.reg" -Value $file8 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable9.reg" -Value $file9 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable10.reg" -Value $file10 -Force | Out-Null
+New-Item -Path "$env:TEMP\disableReg\disable11.reg" -Value $file11 -Force | Out-Null
+$files = (Get-ChildItem -Path "$env:TEMP\disableReg").FullName
+foreach ($file in $files) {
+  $command = "Start-Process regedit.exe -ArgumentList `"/s $file`""
+  Run-Trusted -command $command
+  Start-Sleep 1
+}
+
+
+#attempt to kill defender processes and silence notifications from sec center
+$command = 'Stop-Process MpDefenderCoreService -Force; Stop-Process smartscreen -Force; Stop-Process SecurityHealthService -Force; Stop-Process SecurityHealthSystray -Force; Stop-Service -Name wscsvc -Force; Stop-Service -Name Sense -Force'
+Run-Trusted -command $command
+Run-Trusted -command $run
 
 #disable tasks
 $tasks = Get-ScheduledTask
@@ -441,10 +828,10 @@ $command = "Remove-item -path $smartscreenOFF -force -erroraction silentlycontin
 Run-Trusted -command $command
 
 Write-Host 'Cleaning Up...'
-#remove temp av
-Remove-Item $tempDir -Force -Recurse -ErrorAction SilentlyContinue
-Remove-Item -Path 'registry::HKLM\SOFTWARE\Avast Software' -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path 'registry::HKLM\SYSTEM\ControlSet001\Services\wsc_proxy' -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:TEMP\disableReg" -Recurse -Force
+Remove-item "$env:TEMP\disableScript.ps1" -Force
+Remove-Item "$env:TEMP\DefeatDefend.ps1" -Force
+
 
 [reflection.assembly]::loadwithpartialname('System.Windows.Forms') | Out-Null 
 $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Restart Computer?', 'zoicware', 'YesNo', 'Question')
