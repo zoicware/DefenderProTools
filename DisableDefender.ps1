@@ -293,9 +293,6 @@ Windows Registry Editor Version 5.00
 "HandlerTimeout"=dword:7FFFFFFF
 "ServicesPipeTimeout"=dword:00240000
 
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\PnP]
-"PollBootPartitionTimeout"=dword:00000001
-
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 "ThumbnailLivePreviewHoverTime"=dword:00000001
 '@
