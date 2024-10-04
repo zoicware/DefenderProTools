@@ -72,5 +72,6 @@ AVG is a light weight AV that will provide better protection than Windows Defend
 iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/EnableDefender.ps1 | iex
 ````
 
+**NOTE** If you need to run disable defender twice (fe. 24h2) enable defender will not work so its recommended to create a restore point
 
 If you need to revert Windows Defender this script will restore the registry, services, and scheduled tasks.
