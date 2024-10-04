@@ -85,7 +85,7 @@ Windows Registry Editor Version 5.00
 "value"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScriptScanning]
-"value"=dword:00000001
+"value"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowUserUIAccess]
 "value"=dword:00000000
