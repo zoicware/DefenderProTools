@@ -44,14 +44,11 @@ iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/StripDefend
 iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/DisableDefender.ps1 | iex
 ````
 
-- this script will disable all services/processes related to windows defender
-    - Note : windows defender firewall is not touched
-    
-- to bypass tamper protection a temporary antivirus needs to be installed
-    - Credit : https://github.com/es3n1n/no-defender
+Due to Microsoft patching all the clever methods of bypassing defender without being in safe mode a brute force approach is required 
+- This script will forcibly remove and disable defender registry keys
+  
+- *Since this method does not kill the Antimalware service you may need to run the script again if this service still runs upon rebooting*
 
-
-- Credits to @AveYo for the disable MsMpEng service snippet
 
 > **NOTE:** To prevent smartscreen from running renaming the exe file is needed but windows will repair this file when running `sfc /scannow`
 
