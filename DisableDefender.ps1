@@ -245,8 +245,6 @@ Windows Registry Editor Version 5.00
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\HideWindowsSecurityNotificationAreaControl]
 "value"=dword:00000001
 
-[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Security Center]
-
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Security Center]
 "FirstRunDisabled"=dword:00000001
 "AntiVirusOverride"=dword:00000001
