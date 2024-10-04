@@ -50,7 +50,6 @@ Due to Microsoft patching all the clever methods of bypassing defender without b
 - *Since this method does not kill the Antimalware service you may need to run the script again if this service still runs upon rebooting*
 
 
-> **NOTE:** To prevent smartscreen from running renaming the exe file is needed but windows will repair this file when running `sfc /scannow`
 
 ## Replace Windows Defender
 
