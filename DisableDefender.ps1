@@ -257,45 +257,6 @@ Windows Registry Editor Version 5.00
 [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance]
 "Enabled"=dword:00000000
 '@
-$file4 = @'
-Windows Registry Editor Version 5.00
-
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
-"VerboseStatus"=dword:00000000
-
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability]
-"ShutdownReasonOn"=dword:00000000
-
-[HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Reliability]
-"ShutdownReasonOn"=dword:00000000
-
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows]
-"ShutdownWarningDialogTimeout"=dword:00000001
-
-[HKEY_CURRENT_USER\Control Panel\Desktop]
-"AutoEndTasks"="1"
-"MenuShowDelay"="1"
-"ForegroundLockTimeout"=dword:00000000
-"WaitToKillAppTimeout"="1"
-"WaitToKillServiceTimeout"=dword:00000001
-"HungAppTimeout"="1000"
-"LowLevelHooksTimeout"=dword:00000001
-
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control]
-"WaitToKillServiceTimeout"="1"
-"DisableRemoteScmEndpoints"dword:00000000
-"HandlerTimeout"=dword:7FFFFFFF
-"ServicesPipeTimeout"=dword:00240000
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control]
-"WaitToKillServiceTimeout"="1"
-"DisableRemoteScmEndpoints"dword:00000000
-"HandlerTimeout"=dword:7FFFFFFF
-"ServicesPipeTimeout"=dword:00240000
-
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-"ThumbnailLivePreviewHoverTime"=dword:00000001
-'@
 $file5 = @'
 Windows Registry Editor Version 5.00
 
@@ -785,7 +746,6 @@ New-item -Path "$env:TEMP\disableReg" -ItemType Directory -Force | Out-Null
 New-Item -Path "$env:TEMP\disableReg\disable1.reg" -Value $file1 -Force | Out-Null
 New-Item -Path "$env:TEMP\disableReg\disable2.reg" -Value $file2 -Force | Out-Null
 New-Item -Path "$env:TEMP\disableReg\disable3.reg" -Value $file3 -Force | Out-Null
-New-Item -Path "$env:TEMP\disableReg\disable4.reg" -Value $file4 -Force | Out-Null
 New-Item -Path "$env:TEMP\disableReg\disable5.reg" -Value $file5 -Force | Out-Null
 New-Item -Path "$env:TEMP\disableReg\disable6.reg" -Value $file6 -Force | Out-Null
 New-Item -Path "$env:TEMP\disableReg\disable7.reg" -Value $file7 -Force | Out-Null
