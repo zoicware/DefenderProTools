@@ -27,6 +27,69 @@ function Run-Trusted([String]$command) {
 }
 
 
+function Show-ModernFilePicker {
+    param(
+        [ValidateSet('Folder', 'File')]
+        $Mode,
+        [string]$fileType
+
+    )
+
+    if ($Mode -eq 'Folder') {
+        $Title = 'Select Folder'
+        $modeOption = $false
+        $Filter = "Folders|`n"
+    }
+    else {
+        $Title = 'Select File'
+        $modeOption = $true
+        if ($fileType) {
+            $Filter = "$fileType Files (*.$fileType) | *.$fileType|All files (*.*)|*.*"
+        }
+        else {
+            $Filter = 'All Files (*.*)|*.*'
+        }
+    }
+    #modern file dialog
+    #modified code from: https://gist.github.com/IMJLA/1d570aa2bb5c30215c222e7a5e5078fd
+    $AssemblyFullName = 'System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+    $Assembly = [System.Reflection.Assembly]::Load($AssemblyFullName)
+    $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+    $OpenFileDialog.AddExtension = $modeOption
+    $OpenFileDialog.CheckFileExists = $modeOption
+    $OpenFileDialog.DereferenceLinks = $true
+    $OpenFileDialog.Filter = $Filter
+    $OpenFileDialog.Multiselect = $false
+    $OpenFileDialog.Title = $Title
+    $OpenFileDialog.InitialDirectory = [Environment]::GetFolderPath('Desktop')
+
+    $OpenFileDialogType = $OpenFileDialog.GetType()
+    $FileDialogInterfaceType = $Assembly.GetType('System.Windows.Forms.FileDialogNative+IFileDialog')
+    $IFileDialog = $OpenFileDialogType.GetMethod('CreateVistaDialog', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($OpenFileDialog, $null)
+    $null = $OpenFileDialogType.GetMethod('OnBeforeVistaDialog', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($OpenFileDialog, $IFileDialog)
+    if ($Mode -eq 'Folder') {
+        [uint32]$PickFoldersOption = $Assembly.GetType('System.Windows.Forms.FileDialogNative+FOS').GetField('FOS_PICKFOLDERS').GetValue($null)
+        $FolderOptions = $OpenFileDialogType.GetMethod('get_Options', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($OpenFileDialog, $null) -bor $PickFoldersOption
+        $null = $FileDialogInterfaceType.GetMethod('SetOptions', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($IFileDialog, $FolderOptions)
+    }
+  
+  
+
+    $VistaDialogEvent = [System.Activator]::CreateInstance($AssemblyFullName, 'System.Windows.Forms.FileDialog+VistaDialogEvents', $false, 0, $null, $OpenFileDialog, $null, $null).Unwrap()
+    [uint32]$AdviceCookie = 0
+    $AdvisoryParameters = @($VistaDialogEvent, $AdviceCookie)
+    $AdviseResult = $FileDialogInterfaceType.GetMethod('Advise', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($IFileDialog, $AdvisoryParameters)
+    $AdviceCookie = $AdvisoryParameters[1]
+    $Result = $FileDialogInterfaceType.GetMethod('Show', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($IFileDialog, [System.IntPtr]::Zero)
+    $null = $FileDialogInterfaceType.GetMethod('Unadvise', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($IFileDialog, $AdviceCookie)
+    if ($Result -eq [System.Windows.Forms.DialogResult]::OK) {
+        $FileDialogInterfaceType.GetMethod('GetResult', @('NonPublic', 'Public', 'Static', 'Instance')).Invoke($IFileDialog, $null)
+    }
+
+    return $OpenFileDialog.FileName
+}
+
+
 
 
 #remove file function edited from
@@ -176,8 +239,11 @@ function install-adk {
 
 
 function remove-Defender([String]$folderPath, [String]$edition, [String]$removeDir, $index) {
-
-    [System.Windows.Forms.MessageBox]::Show('Please Make Sure File Explorer is Closed While Removing Defender.', 'Strip Defender')
+    #check for file explorer open
+    $explorerCount = (New-Object -ComObject Shell.Application).Windows().Count
+    if ($explorerCount -ne 0) {
+        [System.Windows.Forms.MessageBox]::Show('Please Make Sure File Explorer is Closed While Removing Defender.', 'Strip Defender', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    }
 
     Write-Host "Removing Defender from $edition..."
     Mount-WindowsImage -ImagePath "$tempDir\sources\install.wim" -Index $index -Path $removeDir
@@ -409,13 +475,10 @@ $isoBrowseButton.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::Fro
 $isoBrowseButton.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
 $isoBrowseButton.Text = '...'
 $isoBrowseButton.Add_Click({
-        $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
-        $fileDialog.Filter = 'ISO Files (*.iso)|*.iso|All Files (*.*)|*.*'
-    
-        if ($fileDialog.ShowDialog() -eq 'OK') {
-            $selectedFile = $fileDialog.FileName
-            $isoTextBox.Text = $selectedFile
-        }
+        
+        $selectedFile = Show-ModernFilePicker -Mode File -fileType 'iso'
+        $isoTextBox.Text = $selectedFile
+        
     })
 $form.Controls.Add($isoBrowseButton)
 
@@ -444,12 +507,10 @@ $destBrowseButton.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::Fr
 $destBrowseButton.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
 $destBrowseButton.Text = '...'
 $destBrowseButton.Add_Click({
-        $folderDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    
-        if ($folderDialog.ShowDialog() -eq 'OK') {
-            $selectedFolder = $folderDialog.SelectedPath
-            $destTextBox.Text = $selectedFolder
-        }
+        
+        $selectedFolder = Show-ModernFilePicker -Mode Folder
+        $destTextBox.Text = $selectedFolder
+        
     })
 $form.Controls.Add($destBrowseButton)
 
@@ -461,10 +522,10 @@ $removeButton.Location = New-Object System.Drawing.Point(130, 160)
 $removeButton.Size = New-Object System.Drawing.Size(120, 30)
 $removeButton.BackColor = [System.Drawing.Color]::FromArgb(30, 30, 30)
 $removeButton.ForeColor = [System.Drawing.Color]::White
-$removeButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-$removeButton.FlatAppearance.BorderSize = 0
-$removeButton.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(62, 62, 64)
-$removeButton.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
+#$removeButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+#$removeButton.FlatAppearance.BorderSize = 0
+#$removeButton.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(62, 62, 64)
+#$removeButton.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
 $removeButton.Text = 'Remove Defender'
 $removeButton.Add_Click({
 
@@ -566,19 +627,19 @@ $removeButton.Add_Click({
                 $button.Size = [System.Drawing.Size]::new(200, 30)
                 $button.BackColor = [System.Drawing.Color]::FromArgb(30, 30, 30)
                 $button.ForeColor = [System.Drawing.Color]::White
-                $button.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-                $button.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(62, 62, 64)
-                $button.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
+                #  $button.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+                #  $button.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(62, 62, 64)
+                #  $button.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
                 $button.Text = $edition.ImageName
                 $button.add_Click({
                         # Reset all buttons to original color
                         $buttonTable.Values | ForEach-Object {
                             $_.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-                            $_.FlatAppearance.BorderColor = [System.Drawing.Color]::White
+                            #  $_.FlatAppearance.BorderColor = [System.Drawing.Color]::White
                         }
                         # Set the clicked button's color to black
                         $this.BackColor = [System.Drawing.Color]::Black
-                        $this.FlatAppearance.BorderColor = [System.Drawing.Color]::Black
+                        # $this.FlatAppearance.BorderColor = [System.Drawing.Color]::Black
 
                     }.GetNewClosure())  
                 $button.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
@@ -594,9 +655,9 @@ $removeButton.Add_Click({
             $okButton.Size = [System.Drawing.Size]::new(120, 30)
             $okButton.BackColor = [System.Drawing.Color]::FromArgb(30, 30, 30)
             $okButton.ForeColor = [System.Drawing.Color]::White
-            $okButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-            $okButton.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(62, 62, 64)
-            $okButton.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
+            #  $okButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+            #  $okButton.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(62, 62, 64)
+            #  $okButton.FlatAppearance.MouseDownBackColor = [System.Drawing.Color]::FromArgb(27, 27, 28)
             $okButton.Text = 'OK'
             $okButton.Add_Click({
                     $buttonTable.GetEnumerator() | ForEach-Object {
