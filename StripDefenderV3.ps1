@@ -417,6 +417,7 @@ $form.Text = 'Windows 10 & 11 Defender Remover'
 $form.Size = New-Object System.Drawing.Size(500, 250)
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
+$form.AllowDrop = $true
 $form.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
 
 # Create controls for choosing ISO file
@@ -514,8 +515,6 @@ $destBrowseButton.Add_Click({
     })
 $form.Controls.Add($destBrowseButton)
 
-
-# Create "Remove Editions" button
 
 $removeButton = New-Object System.Windows.Forms.Button
 $removeButton.Location = New-Object System.Drawing.Point(130, 160)
@@ -733,6 +732,25 @@ $removeButton.Add_Click({
 
     })
 $form.Controls.Add($removeButton)
+
+#add drop config feature
+$form.Add_DragEnter({
+        param($sender, $e)
+        if ($e.Data.GetDataPresent([System.Windows.Forms.DataFormats]::FileDrop)) {
+            $e.Effect = [System.Windows.Forms.DragDropEffects]::Copy
+        }
+        else {
+            $e.Effect = [System.Windows.Forms.DragDropEffects]::None
+        }
+    })
+
+$form.Add_DragDrop({
+        param($sender, $e)
+        $files = $e.Data.GetData([System.Windows.Forms.DataFormats]::FileDrop)
+        if ($files -ne $null) {
+            $isoTextBox.Text = $files[0]
+        }
+    })
 
 # Show the form
 $form.ShowDialog() | Out-Null
