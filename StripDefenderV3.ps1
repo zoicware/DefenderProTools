@@ -306,44 +306,18 @@ function remove-Defender([String]$folderPath, [String]$edition, [String]$removeD
     Disable-Defender -edition $edition
 
     #additional sec options
-    if ($stripFirewall) {
-        Write-Host 'Stripping Firewall...'
-        $disableContent = @'
-Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
-Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\PublicProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
-Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\PrivateProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
-Reg add "HKLM\OFFLINE_SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
-Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\PublicProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
-Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f 
-Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Services\mpssvc" /v "Start" /t REG_DWORD /d "4" /f
-'@
-
-        $dPath = New-Item "$env:TEMP\disableFirewall.bat" -Value $disableContent -Force
-
-        $command = "Start-Process `'$($dPath.FullName)`'"
-        Run-Trusted -command $command 
-        #firewall files
-        $firefiles = @(
-            'Windows\SystemResources\FirewallControlPanel.dll.mun',
-            'Windows\System32\Firewall.cpl',
-            # 'Windows\SystemResources\FirewallUX.dll.mun',
-            # 'Windows\System32\en-US\FirewallUX.dll.mui',
-            'Windows\System32\en-US\FirewallControlPanel.dll.mui',
-            'Windows\SysWOW64\en-US\FirewallControlPanel.dll.mui',
-            # 'Windows\System32\en-US\FirewallAPI.dll.mui',
-            # 'Windows\System32\FirewallAPI.dll',
-            # 'Windows\SysWOW64\FirewallAPI.dll',
-            # 'Windows\System32\FirewallUX.dll',
-            'Windows\System32\FirewallControlPanel.dll',
-            'Windows\SysWOW64\FirewallControlPanel.dll'
-        )
-
-
-        foreach ($file in $firefiles) {
-            Remove-File -path "$removeDir\$file"
-        }
-        
-        Remove-Item $dPath.FullName -Force -ErrorAction SilentlyContinue 
+    if ($tpmReq) {
+        Write-Host 'Disabling TPM Requirements...'
+        Reg add 'HKLM\OFFLINE_DEFAULT\Control Panel\UnsupportedHardwareNotificationCache' /v 'SV1' /t REG_DWORD /d 0 /f >$null
+        Reg add 'HKLM\OFFLINE_DEFAULT\Control Panel\UnsupportedHardwareNotificationCache' /v 'SV2' /t REG_DWORD /d 0 /f >$null
+        Reg add 'HKLM\OFFLINE_NTUSER\Control Panel\UnsupportedHardwareNotificationCache' /v 'SV1' /t REG_DWORD /d 0 /f >$null
+        Reg add 'HKLM\OFFLINE_NTUSER\Control Panel\UnsupportedHardwareNotificationCache' /v 'SV2' /t REG_DWORD /d 0 /f >$null
+        Reg add 'HKLM\OFFLINE_SYSTEM\Setup\LabConfig' /v 'BypassCPUCheck' /t REG_DWORD /d 1 /f >$null
+        Reg add 'HKLM\OFFLINE_SYSTEM\Setup\LabConfig' /v 'BypassRAMCheck' /t REG_DWORD /d 1 /f >$null
+        Reg add 'HKLM\OFFLINE_SYSTEM\Setup\LabConfig' /v 'BypassSecureBootCheck' /t REG_DWORD /d 1 /f >$null
+        Reg add 'HKLM\OFFLINE_SYSTEM\Setup\LabConfig' /v 'BypassStorageCheck' /t REG_DWORD /d 1 /f >$null
+        Reg add 'HKLM\OFFLINE_SYSTEM\Setup\LabConfig' /v 'BypassTPMCheck' /t REG_DWORD /d 1 /f >$null
+        Reg add 'HKLM\OFFLINE_SYSTEM\Setup\MoSetup' /v 'AllowUpgradesWithUnsupportedTPMOrCPU' /t REG_DWORD /d 1 /f >$null
     }
 
     if ($disableMitigations) {
@@ -438,7 +412,7 @@ $form.Controls.Add($additionalLabel)
 $checkbox1 = New-Object System.Windows.Forms.CheckBox
 $checkbox1.Location = new-object System.Drawing.Size(15, 120)
 $checkbox1.Size = new-object System.Drawing.Size(80, 20)
-$checkbox1.Text = 'Firewall'
+$checkbox1.Text = 'TPM Requirements'
 $checkbox1.ForeColor = 'White'
 $checkbox1.Checked = $false
 $Form.Controls.Add($checkbox1) 
@@ -529,11 +503,11 @@ $removeButton.Text = 'Remove Defender'
 $removeButton.Add_Click({
 
         #check additional options
-        $Global:stripFirewall = $false
+        $Global:tpmReq = $false
         $Global:disableMitigations = $false
         $Global:stripBitlocker = $false
         if ($checkbox1.Checked) {
-            $stripFirewall = $true
+            $tpmReq = $true
         }
         if ($checkbox2.Checked) {
             $disableMitigations = $true
