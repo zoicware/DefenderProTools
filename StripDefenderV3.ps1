@@ -411,14 +411,14 @@ $form.Controls.Add($additionalLabel)
 
 $checkbox1 = New-Object System.Windows.Forms.CheckBox
 $checkbox1.Location = new-object System.Drawing.Size(15, 120)
-$checkbox1.Size = new-object System.Drawing.Size(80, 20)
+$checkbox1.Size = new-object System.Drawing.Size(140, 20)
 $checkbox1.Text = 'TPM Requirements'
 $checkbox1.ForeColor = 'White'
 $checkbox1.Checked = $false
 $Form.Controls.Add($checkbox1) 
 
 $checkbox2 = New-Object System.Windows.Forms.CheckBox
-$checkbox2.Location = new-object System.Drawing.Size(100, 120)
+$checkbox2.Location = new-object System.Drawing.Size(160, 120)
 $checkbox2.Size = new-object System.Drawing.Size(120, 20)
 $checkbox2.Text = 'Mitigation Options'
 $checkbox2.ForeColor = 'White'
@@ -426,7 +426,7 @@ $checkbox2.Checked = $false
 $Form.Controls.Add($checkbox2) 
 
 $checkbox3 = New-Object System.Windows.Forms.CheckBox
-$checkbox3.Location = new-object System.Drawing.Size(230, 120)
+$checkbox3.Location = new-object System.Drawing.Size(300, 120)
 $checkbox3.Size = new-object System.Drawing.Size(120, 20)
 $checkbox3.Text = 'Bitlocker'
 $checkbox3.ForeColor = 'White'
