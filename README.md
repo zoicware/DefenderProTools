@@ -29,12 +29,6 @@ This powershell script will use dism and trusted installer privileges to remove 
 iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/StripDefenderV3.ps1 | iex
 ````
 
-**USAGE EXAMPLE:**
-
-![image](https://github.com/user-attachments/assets/e3b71810-a3a1-481d-b576-8fe8a8469991)
-
-![image](https://github.com/zoicware/DefenderProTools/assets/118035521/56a5e59c-ca57-4732-9713-c640159c0872)
-
 
 
 ## Disable Windows Defender
