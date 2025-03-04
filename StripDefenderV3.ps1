@@ -324,7 +324,7 @@ function remove-Defender([String]$folderPath, [String]$edition, [String]$removeD
         Write-Host 'Disabling Mitigation Options...'
         $disableContent = @'
 Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\Session Manager\kernel" /v "MitigationOptions" /t REG_BINARY /d "222022000002000000020000000000000000000000000000" /f
-Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard" /v "EnableVirtualizationBasedSecurity" /t REG_DWORD /d "2" /f
+Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard" /v "EnableVirtualizationBasedSecurity" /t REG_DWORD /d "0" /f
 Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard" /v "HypervisorEnforcedCodeIntegrity" /t REG_DWORD /d "0" /f
 Reg add "HKLM\OFFLINE_SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\RequirePlatformSecurityFeatures" /v "value" /t REG_DWORD /d "0" /f
 Reg add "HKLM\OFFLINE_SYSTEM\ControlSet001\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "Enabled" /t REG_DWORD /d "0" /f
