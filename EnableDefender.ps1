@@ -1,24 +1,24 @@
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]'Administrator')) {
-    Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
-    Exit	
+  Start-Process PowerShell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`"" -f $PSCommandPath) -Verb RunAs
+  Exit	
 }
 
 function Run-Trusted([String]$command) {
 
-    Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
-    #get bin path to revert later
-    $service = Get-WmiObject -Class Win32_Service -Filter "Name='TrustedInstaller'"
-    $DefaultBinPath = $service.PathName
-    #convert command to base64 to avoid errors with spaces
-    $bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
-    $base64Command = [Convert]::ToBase64String($bytes)
-    #change bin to command
-    sc.exe config TrustedInstaller binPath= "cmd.exe /c powershell.exe -encodedcommand $base64Command" | Out-Null
-    #run the command
-    sc.exe start TrustedInstaller | Out-Null
-    #set bin back to default
-    sc.exe config TrustedInstaller binpath= "`"$DefaultBinPath`"" | Out-Null
-    Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
+  Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
+  #get bin path to revert later
+  $service = Get-WmiObject -Class Win32_Service -Filter "Name='TrustedInstaller'"
+  $DefaultBinPath = $service.PathName
+  #convert command to base64 to avoid errors with spaces
+  $bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
+  $base64Command = [Convert]::ToBase64String($bytes)
+  #change bin to command
+  sc.exe config TrustedInstaller binPath= "cmd.exe /c powershell.exe -encodedcommand $base64Command" | Out-Null
+  #run the command
+  sc.exe start TrustedInstaller | Out-Null
+  #set bin back to default
+  sc.exe config TrustedInstaller binpath= "`"$DefaultBinPath`"" | Out-Null
+  Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
 
 }
 
@@ -621,6 +621,70 @@ Windows Registry Editor Version 5.00
 $file6 = @'
 Windows Registry Editor Version 5.00
 
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\webthreatdefsvc]
+"DependOnService"=hex(7):52,00,70,00,63,00,53,00,73,00,00,00,77,00,74,00,64,00,\
+  00,00,00,00
+"Description"="@%systemroot%\\system32\\webthreatdefsvc.dll,-101"
+"DisplayName"="@%systemroot%\\system32\\webthreatdefsvc.dll,-100"
+"ErrorControl"=dword:00000001
+"FailureActions"=hex:80,51,01,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,\
+  00,01,00,00,00,60,ea,00,00,01,00,00,00,c0,d4,01,00,00,00,00,00,00,00,00,00
+"FailureActionsOnNonCrashFailures"=dword:00000001
+"ImagePath"=hex(2):25,00,53,00,79,00,73,00,74,00,65,00,6d,00,52,00,6f,00,6f,00,\
+  74,00,25,00,5c,00,73,00,79,00,73,00,74,00,65,00,6d,00,33,00,32,00,5c,00,73,\
+  00,76,00,63,00,68,00,6f,00,73,00,74,00,2e,00,65,00,78,00,65,00,20,00,2d,00,\
+  6b,00,20,00,57,00,65,00,62,00,54,00,68,00,72,00,65,00,61,00,74,00,44,00,65,\
+  00,66,00,65,00,6e,00,73,00,65,00,20,00,2d,00,70,00,00,00
+"ObjectName"="NT AUTHORITY\\LocalService"
+"ServiceSidType"=dword:00000001
+"Start"=dword:00000003
+"Type"=dword:00000020
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\webthreatdefsvc\Parameters]
+"ServiceDll"=hex(2):25,00,53,00,79,00,73,00,74,00,65,00,6d,00,52,00,6f,00,6f,\
+  00,74,00,25,00,5c,00,53,00,79,00,73,00,74,00,65,00,6d,00,33,00,32,00,5c,00,\
+  77,00,65,00,62,00,74,00,68,00,72,00,65,00,61,00,74,00,64,00,65,00,66,00,73,\
+  00,76,00,63,00,2e,00,64,00,6c,00,6c,00,00,00
+"ServiceDllUnloadOnStop"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\webthreatdefsvc\TriggerInfo]
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\webthreatdefsvc\TriggerInfo\0]
+"Action"=dword:00000001
+"Data0"=hex:75,10,bc,a3,3a,1a,82,41
+"DataType0"=dword:00000001
+"GUID"=hex:16,28,7a,2d,5e,0c,fc,45,9c,e7,57,0e,5e,cd,e9,c9
+"Type"=dword:00000007
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\webthreatdefusersvc]
+"DependOnService"=hex(7):52,00,70,00,63,00,53,00,73,00,00,00,00,00
+"Description"="@%systemroot%\\system32\\webthreatdefusersvc.dll,-101"
+"DisplayName"="@%systemroot%\\system32\\webthreatdefusersvc.dll,-100"
+"ErrorControl"=dword:00000001
+"FailureActions"=hex:80,51,01,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,\
+  00,01,00,00,00,60,ea,00,00,01,00,00,00,c0,d4,01,00,01,00,00,00,80,a9,03,00
+"ImagePath"=hex(2):25,00,53,00,79,00,73,00,74,00,65,00,6d,00,52,00,6f,00,6f,00,\
+  74,00,25,00,5c,00,73,00,79,00,73,00,74,00,65,00,6d,00,33,00,32,00,5c,00,73,\
+  00,76,00,63,00,68,00,6f,00,73,00,74,00,2e,00,65,00,78,00,65,00,20,00,2d,00,\
+  6b,00,20,00,4c,00,6f,00,63,00,61,00,6c,00,53,00,79,00,73,00,74,00,65,00,6d,\
+  00,4e,00,65,00,74,00,77,00,6f,00,72,00,6b,00,52,00,65,00,73,00,74,00,72,00,\
+  69,00,63,00,74,00,65,00,64,00,20,00,2d,00,70,00,00,00
+"ObjectName"="LocalSystem"
+"RequiredPrivileges"=hex(7):53,00,65,00,49,00,6d,00,70,00,65,00,72,00,73,00,6f,\
+  00,6e,00,61,00,74,00,65,00,50,00,72,00,69,00,76,00,69,00,6c,00,65,00,67,00,\
+  65,00,00,00,00,00
+"ServiceSidType"=dword:00000003
+"Start"=dword:00000002
+"Type"=dword:00000060
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\webthreatdefusersvc\Parameters]
+"ServiceDll"=hex(2):25,00,53,00,79,00,73,00,74,00,65,00,6d,00,52,00,6f,00,6f,\
+  00,74,00,25,00,5c,00,53,00,79,00,73,00,74,00,65,00,6d,00,33,00,32,00,5c,00,\
+  77,00,65,00,62,00,74,00,68,00,72,00,65,00,61,00,74,00,64,00,65,00,66,00,75,\
+  00,73,00,65,00,72,00,73,00,76,00,63,00,2e,00,64,00,6c,00,6c,00,00,00
+"ServiceDllUnloadOnStop"=dword:00000001
+
+
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MsSecCore]
 "Description"="@%SystemRoot%\\System32\\Drivers\\msseccore.sys,-1002"
 "DisplayName"="@%SystemRoot%\\System32\\Drivers\\msseccore.sys,-1001"
@@ -1005,9 +1069,9 @@ New-Item -Path "$env:TEMP\enableReg\enable8.reg" -Value $file8 -Force | Out-Null
 
 $files = (Get-ChildItem -Path "$env:TEMP\enableReg").FullName
 foreach ($file in $files) {
-    $command = "Start-Process regedit.exe -ArgumentList `"/s $file`""
-    Run-Trusted -command $command
-    Start-Sleep 1
+  $command = "Start-Process regedit.exe -ArgumentList `"/s $file`""
+  Run-Trusted -command $command
+  Start-Sleep 1
 }
 
 $command = @'
@@ -1029,8 +1093,6 @@ Reg add "HKLM\SYSTEM\ControlSet001\Services\WdNisSvc" /v "Start" /t REG_DWORD /d
 Reg delete "HKLM\SOFTWARE\Microsoft\Windows Defender" /v "DisableAntiSpyware" /f 
 Reg delete "HKLM\SOFTWARE\Microsoft\Windows Defender" /v "DisableAntiVirus" /f 
 Reg delete "HKLM\SYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /f 
-Reg add "HKLM\SYSTEM\ControlSet001\Services\webthreatdefsvc" /v "Start" /t REG_DWORD /d "3" /f
-Reg add "HKLM\SYSTEM\ControlSet001\Services\webthreatdefusersvc" /v "Start" /t REG_DWORD /d "3" /f
 Reg delete "HKLM\SOFTWARE\Microsoft\Windows Security Health\State" /v "AppAndBrowser_StoreAppsSmartScreenOff" /f  
 Reg delete "HKLM\NTUSER\SOFTWARE\Policies\Microsoft\Edge" /v "SmartScreenEnabled" /f 
 Reg delete "HKLM\DEFAULT\SOFTWARE\Policies\Microsoft\Edge" /v "SmartScreenEnabled" /f
@@ -1052,7 +1114,7 @@ New-Item -Path "$env:TEMP\EnableDefend.bat" -Value $command -Force | Out-Null
 Run-Trusted -command "Start-process $env:TEMP\EnableDefend.bat"
 Write-Host 'Enabling MsMpEng Service...'
 function enableMsMpEng {
-    $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
+  $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
  $I=[int32]; $M=$I.module.gettype("System.Runtime.Interop`Services.Mar`shal"); $P=$I.module.gettype("System.Int`Ptr"); $S=[string]
  $D=@(); $DM=[AppDomain]::CurrentDomain."DefineDynami`cAssembly"(1,1)."DefineDynami`cModule"(1); $U=[uintptr]; $Z=[uintptr]::size 
  0..5|% {$D += $DM."Defin`eType"("AveYo_$_",1179913,[ValueType])}; $D += $U; 4..6|% {$D += $D[$_]."MakeByR`efType"()}; $F=@()
@@ -1115,16 +1177,16 @@ $ENABLE_TAMPER_PROTECTION = 1
  
  ################################################################################################################################
 '@; $V = ''; 'id', 'key' | ForEach-Object { $V += "`n`$$_='$($(Get-Variable $_ -val)-replace"'","''")';" }; Set-ItemProperty $key $id $V, $code -type 7 -force -ea 0
-    Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -Wait
+  Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -Wait
 }
 enableMsMpEng
 
 Write-Host 'Enabling Scheduled Tasks...'
 $defenderTasks = Get-ScheduledTask 
 foreach ($task in $defenderTasks) {
-    if ($task.TaskName -like 'Windows Defender*') {
-        Enable-ScheduledTask -TaskName $task.TaskName -ErrorAction SilentlyContinue | Out-Null
-    }
+  if ($task.TaskName -like 'Windows Defender*') {
+    Enable-ScheduledTask -TaskName $task.TaskName -ErrorAction SilentlyContinue | Out-Null
+  }
 }
 
 Write-Host 'Enabling Defender Features...'
@@ -1144,12 +1206,12 @@ $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Restart Computer?', 'zoi
 
 switch ($msgBoxInput) {
 
-    'Yes' {
+  'Yes' {
   
-        Restart-Computer
-    }
+    Restart-Computer
+  }
 
-    'No' {
-    }
+  'No' {
+  }
 
 }
