@@ -8,7 +8,6 @@
 - Included Scripts
   - [Strip Windows Defender](#strip-windows-defender)
   - [Disable Windows Defender](#disable-windows-defender)
-  - [Replace Windows Defender](#replace-windows-defender)
   - [Enable Windows Defender](#enable-windows-defender)
 
 ---
@@ -44,20 +43,6 @@ Due to Microsoft patching all the clever methods of bypassing defender without b
 - *Since this method does not kill the Antimalware service you may need to run the script again if this service still runs upon rebooting*
 
 
-
-## Replace Windows Defender
-
-***Run Script from Console***
-````ps
-iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/ReplaceDefender.ps1 | iex
-````
-
-This script will replace Windows Defender with AVG Antivirus
-  - cleanup AVG shortcuts and context menu
-  - disable the rest of Windows Defender
-  - import minimal settings
-
-AVG is a light weight AV that will provide better protection than Windows Defender
 
 ## Enable Windows Defender
 
