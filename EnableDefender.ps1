@@ -1053,6 +1053,20 @@ Windows Registry Editor Version 5.00
 "ActivationType"=dword:00000001
 "Server"="WebThreatDefSvc"
 "TrustLevel"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\exefile\shell\open]
+"NoSmartScreen"=-
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\exefile\shell\runas]
+"NoSmartScreen"=-
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\exefile\shell\runasuser]
+"NoSmartScreen"=-
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\SmartScreen.exe]
+"Debugger"=-
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\SmartScreen.exe]
 '@
 
 
