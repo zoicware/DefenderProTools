@@ -419,6 +419,18 @@ Windows Registry Editor Version 5.00
 "DisableUpdateOnStartupWithoutEngine"=dword:00000001
 "ScheduleTime"=dword:00001440
 "DisableScanOnUpdate"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System]
+"EnableSmartScreen"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\SmartScreen]
+"ConfigureAppInstallControlEnabled"=dword:00000001
+"ConfigureAppInstallControl"="Anywhere"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows Security Health\State]
+"AppAndBrowser_EdgeSmartScreenOff"=dword:00000001
+"AppAndBrowser_StoreAppsSmartScreenOff"=dword:00000001
+"AppAndBrowser_PuaSmartScreenOff"=dword:00000001
 '@
 $file10 = @'
 Windows Registry Editor Version 5.00
@@ -445,11 +457,17 @@ Windows Registry Editor Version 5.00
 "NoSmartScreen"=""
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\SmartScreen.exe]
-"Debugger"="dllhost.exe"
+"Debugger"="systray.exe"
 
 '@
 $file11 = @'
 Windows Registry Editor Version 5.00
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\CLSID\{a463fcb9-6b1c-4e0d-a80b-a2ca7999e25d}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\WOW6432Node\CLSID\{a463fcb9-6b1c-4e0d-a80b-a2ca7999e25d}]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Classes\CLSID\{a463fcb9-6b1c-4e0d-a80b-a2ca7999e25d}]
 
 [-HKEY_CLASSES_ROOT\CLSID\{E48B2549-D510-4A76-8A5F-FC126A6215F0}]
 
@@ -670,7 +688,7 @@ Reg.exe add 'HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settin
 Reg.exe add 'HKLM\SYSTEM\ControlSet001\Control\Session Manager\kernel' /v 'MitigationOptions' /t REG_BINARY /d '222222000001000000000000000000000000000000000000' /f *>$null
 Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows Defender' /v 'PUAProtection' /t REG_DWORD /d '0' /f"
 Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' /v 'SmartScreenEnabled' /t REG_SZ /d 'Off' /f"
-
+Run-Trusted -command "Reg.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' /v 'AicEnabled' /t REG_SZ /d 'Anywhere' /f"
 
 Write-Host 'Disabling Defender with Registry Hacks...' 
 
