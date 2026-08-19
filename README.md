@@ -25,7 +25,7 @@ This powershell script will use dism and trusted installer privileges to remove 
 
 ***Run Script from Console***
 ````ps
-iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/StripDefenderV3.ps1 | iex
+irm https://raw.githubusercontent.com/zoicware/DefenderProTools/main/StripDefenderV3.ps1 | iex
 ````
 
 
@@ -34,13 +34,11 @@ iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/StripDefend
 
 ***Run Script from Console***
 ````ps
-iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/DisableDefender.ps1 | iex
+irm https://raw.githubusercontent.com/zoicware/DefenderProTools/main/DisableDefender.ps1 | iex
 ````
 
-Due to Microsoft patching all the clever methods of bypassing defender without being in safe mode a brute force approach is required 
-- This script will forcibly remove and disable defender registry keys
-  
-- *Since this method does not kill the Antimalware service you may need to run the script again if this service still runs upon rebooting*
+This script will completely disable defender and all its related processes/services  
+Uses kill engine from: https://github.com/wesmar/WinDefCtl  
 
 
 
@@ -48,9 +46,6 @@ Due to Microsoft patching all the clever methods of bypassing defender without b
 
 ***Run Script from Console***
 ````ps
-iwr https://raw.githubusercontent.com/zoicware/DefenderProTools/main/EnableDefender.ps1 | iex
+irm https://raw.githubusercontent.com/zoicware/DefenderProTools/main/EnableDefender.ps1 | iex
 ````
-
-**NOTE** If you need to run disable defender twice (fe. 24h2) enable defender will not work so its recommended to create a restore point
-
 If you need to revert Windows Defender this script will restore the registry, services, and scheduled tasks.
