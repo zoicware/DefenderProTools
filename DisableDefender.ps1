@@ -364,6 +364,8 @@ Windows Registry Editor Version 5.00
 [-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MsSecFlt]
 
 [-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MsSecWfp]
+
+[-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MDCoreSvc]
 '@
 $file8 = @'
 Windows Registry Editor Version 5.00
@@ -647,7 +649,7 @@ function RegSetDwords ($hive, $key, [array]$values, [array]$dword, $REG_TYPE = 4
     #run defender command line to disable msmpeng service
     Push-Location "$env:programfiles\Windows Defender"
     $mpcmdrun = ('OFFmeansOFF.exe', 'MpCmdRun.exe')[(test-path 'MpCmdRun.exe')]
-    Start-Process -wait $mpcmdrun -args '-DisableService -HighPriority'
+    Start-Process -wait $mpcmdrun -args '-DisableService -Force'
     #wait for service to close before continuing
     $wait = 14
     while ((get-process -name 'MsMpEng' -ea 0) -and $wait -gt 0) { 
