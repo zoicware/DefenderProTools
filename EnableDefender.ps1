@@ -1084,9 +1084,66 @@ Windows Registry Editor Version 5.00
 [-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\SmartScreen.exe]
 '@
 
+$IFEO_KEY = 'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options'
+$TEMP_HIVE_NAME = 'TempIFEO'
+$DEBUGGER_VALUE = 'Debugger'
+$DEBUGGER_PAYLOAD = 'systray.exe'
+$IFEO_TARGETS = @('MsMpEng.exe', 'SecurityHealthSystray.exe', 'SecurityHealthService.exe', 'MpDefenderCoreService.exe')
+
+function Invoke-Reg {
+  param([string[]]$RegArgs)
+  & reg.exe @RegArgs *>$null
+  return $LASTEXITCODE
+}
+
+function Set-IFEOBlock {
+  param([bool]$AddBlock)
+  $hivePath = Join-Path $env:TEMP 'Ifeo.hiv'
+  Remove-Item $hivePath -Force -EA SilentlyContinue
+  Remove-Item ("$hivePath.LOG1") -Force -EA SilentlyContinue
+  Remove-Item ("$hivePath.LOG2") -Force -EA SilentlyContinue
+
+  # Unload if still loaded from a prior crash
+  Invoke-Reg @('unload', "HKLM\$TEMP_HIVE_NAME") | Out-Null
+
+  # Snapshot live IFEO
+  if ((Invoke-Reg @('save', "HKLM\$IFEO_KEY", $hivePath, '/y')) -ne 0) {
+    Write-Host '  [!] reg save IFEO failed' -F Red; return $false
+  }
+
+  # Load it under a synthetic name we can modify
+  if ((Invoke-Reg @('load', "HKLM\$TEMP_HIVE_NAME", $hivePath)) -ne 0) {
+    Write-Host '  [!] reg load TempIFEO failed' -F Red; return $false
+  }
+
+  foreach ($t in $IFEO_TARGETS) {
+    $sub = "HKLM\$TEMP_HIVE_NAME\$t"
+    if ($AddBlock) {
+      Invoke-Reg @('add', $sub, '/v', $DEBUGGER_VALUE, '/t', 'REG_SZ', '/d', $DEBUGGER_PAYLOAD, '/f') | Out-Null
+    }
+    else {
+      Invoke-Reg @('delete', $sub, '/v', $DEBUGGER_VALUE, '/f') | Out-Null
+      Invoke-Reg @('delete', $sub, '/f') | Out-Null
+    }
+  }
+
+  Invoke-Reg @('unload', "HKLM\$TEMP_HIVE_NAME") | Out-Null
+
+  # Restore (REG_FORCE_RESTORE) -- requires /f
+  if ((Invoke-Reg @('restore', "HKLM\$IFEO_KEY", $hivePath, '/f')) -ne 0) {
+    Write-Host '  [!] reg restore IFEO failed' -F Red
+    Remove-Item $hivePath, "$hivePath.LOG1", "$hivePath.LOG2" -Force -EA SilentlyContinue
+    return $false
+  }
+
+  Remove-Item $hivePath, "$hivePath.LOG1", "$hivePath.LOG2" -Force -EA SilentlyContinue
+  return $true
+}
+
 
 #restore defender reg keys
 Write-Host 'Restoring Defender Registry Keys...'
+Set-IFEOBlock -AddBlock:$false | Out-Null
 New-item -Path "$env:TEMP\enableReg" -ItemType Directory -Force | Out-Null
 New-Item -Path "$env:TEMP\enableReg\enable1.reg" -Value $file1 -Force | Out-Null
 New-Item -Path "$env:TEMP\enableReg\enable2.reg" -Value $file2 -Force | Out-Null
@@ -1141,74 +1198,6 @@ Reg delete 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer' /v 'SmartSc
 New-Item -Path "$env:TEMP\EnableDefend.bat" -Value $command -Force | Out-Null
 
 Run-Trusted -command "Start-process $env:TEMP\EnableDefend.bat"
-Write-Host 'Enabling MsMpEng Service...'
-function enableMsMpEng {
-  $id = 'Defender'; $key = 'Registry::HKU\S-1-5-21-*\Volatile Environment'; $code = @'
- $I=[int32]; $M=$I.module.gettype("System.Runtime.Interop`Services.Mar`shal"); $P=$I.module.gettype("System.Int`Ptr"); $S=[string]
- $D=@(); $DM=[AppDomain]::CurrentDomain."DefineDynami`cAssembly"(1,1)."DefineDynami`cModule"(1); $U=[uintptr]; $Z=[uintptr]::size 
- 0..5|% {$D += $DM."Defin`eType"("AveYo_$_",1179913,[ValueType])}; $D += $U; 4..6|% {$D += $D[$_]."MakeByR`efType"()}; $F=@()
- $F+='kernel','CreateProcess',($S,$S,$I,$I,$I,$I,$I,$S,$D[7],$D[8]), 'advapi','RegOpenKeyEx',($U,$S,$I,$I,$D[9])
- $F+='advapi','RegSetValueEx',($U,$S,$I,$I,[byte[]],$I),'advapi','RegFlushKey',($U),'advapi','RegCloseKey',($U)
- 0..4|% {$9=$D[0]."DefinePInvok`eMethod"($F[3*$_+1], $F[3*$_]+"32", 8214,1,$S, $F[3*$_+2], 1,4)}
- $DF=($P,$I,$P),($I,$I,$I,$I,$P,$D[1]),($I,$S,$S,$S,$I,$I,$I,$I,$I,$I,$I,$I,[int16],[int16],$P,$P,$P,$P),($D[3],$P),($P,$P,$I,$I)
- 1..5|% {$k=$_; $n=1; $DF[$_-1]|% {$9=$D[$k]."Defin`eField"("f" + $n++, $_, 6)}}; $T=@(); 0..5|% {$T += $D[$_]."Creat`eType"()}
- 0..5|% {nv "A$_" ([Activator]::CreateInstance($T[$_])) -fo}; function F ($1,$2) {$T[0]."G`etMethod"($1).invoke(0,$2)}
- function M ($1,$2,$3) {$M."G`etMethod"($1,[type[]]$2).invoke(0,$3)}; $H=@(); $Z,(4*$Z+16)|% {$H += M "AllocHG`lobal" $I $_}
- if ([environment]::username -ne "system") { $TI="Trusted`Installer"; start-service $TI -ea 0; $As=get-process -name $TI -ea 0
- M "WriteInt`Ptr" ($P,$P) ($H[0],$As.Handle); $A1.f1=131072; $A1.f2=$Z; $A1.f3=$H[0]; $A2.f1=1; $A2.f2=1; $A2.f3=1; $A2.f4=1
- $A2.f6=$A1; $A3.f1=10*$Z+32; $A4.f1=$A3; $A4.f2=$H[1]; M "StructureTo`Ptr" ($D[2],$P,[boolean]) (($A2 -as $D[2]),$A4.f2,$false)
- $R=@($null, "powershell -nop -c iex(`$env:R); # $id", 0, 0, 0, 0x0E080610, 0, $null, ($A4 -as $T[4]), ($A5 -as $T[5]))
- F 'CreateProcess' $R; return}; $env:R=''; rp $key $id -force -ea 0; $e=[diagnostics.process]."GetM`ember"('SetPrivilege',42)[0]
- 'SeSecurityPrivilege','SeTakeOwnershipPrivilege','SeBackupPrivilege','SeRestorePrivilege' |% {$e.Invoke($null,@("$_",2))}
- ## Toggling was unreliable due to multiple windows programs with open handles on these keys
- ## so went with low-level functions instead! do not use them in other scripts without a trip to learn-microsoft-com  
- function RegSetDwords ($hive, $key, [array]$values, [array]$dword, $REG_TYPE=4, $REG_ACCESS=2, $REG_OPTION=0) {
-   $rok = ($hive, $key, $REG_OPTION, $REG_ACCESS, ($hive -as $D[9]));  F "RegOpenKeyEx" $rok; $rsv = $rok[4]
-   $values |% {$i = 0} { F "RegSetValueEx" ($rsv[0], [string]$_, 0, $REG_TYPE, [byte[]]($dword[$i]), 4); $i++ }
-   F "RegFlushKey" @($rsv); F "RegCloseKey" @($rsv); $rok = $null; $rsv = $null;
- }  
- ## The ` sprinkles are used to keep ps event log clean, not quote the whole snippet on every run
- ################################################################################################################################ 
- 
- ## get script options
- $toggle = 0; $toggle_rev = 1; 
-$ENABLE_TAMPER_PROTECTION = 1
-
- stop-service "wscsvc" -force -ea 0 >'' 2>''
- kill -name "OFFmeansOFF","MpCmdRun" -force -ea 0 
- 
- $HKLM = [uintptr][uint32]2147483650
- $VALUES = "ServiceKeepAlive","PreviousRunningMode","IsServiceRunning","DisableAntiSpyware","DisableAntiVirus","PassiveMode"
- $DWORDS = 0, 0, 0, $toggle, $toggle, $toggle
- RegSetDwords $HKLM "SOFTWARE\Policies\Microsoft\Windows Defender" $VALUES $DWORDS 
- RegSetDwords $HKLM "SOFTWARE\Microsoft\Windows Defender" $VALUES $DWORDS
- [GC]::Collect(); sleep 1
- pushd "$env:programfiles\Windows Defender"
- $mpcmdrun=("OFFmeansOFF.exe","MpCmdRun.exe")[(test-path "MpCmdRun.exe")]
- start -wait $mpcmdrun -args "-EnableService -HighPriority"
- $wait=3
- while ((get-process -name "MsMpEng" -ea 0) -and $wait -gt 0) {$wait--; sleep 1;}
- 
- ## OFF means OFF
- pushd (split-path $(gp "HKLM:\SYSTEM\CurrentControlSet\Services\WinDefend" ImagePath -ea 0).ImagePath.Trim('"'))
- ren OFFmeansOFF.exe MpCmdRun.exe -force -ea 0
-
- RegSetDwords $HKLM "SOFTWARE\Policies\Microsoft\Windows Defender" $VALUES $DWORDS 
- RegSetDwords $HKLM "SOFTWARE\Microsoft\Windows Defender" $VALUES $DWORDS
-
-  ## when re-enabling Defender, also re-enable Tamper Protection - annoying but safer - set to 0 at top of the script to skip it
- if ($ENABLE_TAMPER_PROTECTION -ne 0) {
-   RegSetDwords $HKLM "SOFTWARE\Microsoft\Windows Defender\Features" ("TamperProtection","TamperProtectionSource") (1,5)
- }
- 
- start-service "windefend" -ea 0
- start-service "wscsvc" -ea 0 >'' 2>'' 
- 
- ################################################################################################################################
-'@; $V = ''; 'id', 'key' | ForEach-Object { $V += "`n`$$_='$($(Get-Variable $_ -val)-replace"'","''")';" }; Set-ItemProperty $key $id $V, $code -type 7 -force -ea 0
-  Start-Process powershell -args "-nop -c `n$V  `$env:R=(gi `$key -ea 0 |% {`$_.getvalue(`$id)-join''}); iex(`$env:R)" -verb runas -Wait
-}
-enableMsMpEng
 
 Write-Host 'Enabling Scheduled Tasks...'
 $defenderTasks = Get-ScheduledTask 
@@ -1217,15 +1206,6 @@ foreach ($task in $defenderTasks) {
     Enable-ScheduledTask -TaskName $task.TaskName -ErrorAction SilentlyContinue | Out-Null
   }
 }
-
-Write-Host 'Enabling Defender Features...'
-$ProgressPreference = 'SilentlyContinue'
-Enable-WindowsOptionalFeature -Online -FeatureName 'Windows-Defender-Default-Definitions' -NoRestart -ErrorAction SilentlyContinue | Out-Null
-Enable-WindowsOptionalFeature -Online -FeatureName 'Windows-Defender-ApplicationGuard' -NoRestart -ErrorAction SilentlyContinue | Out-Null
-
-#rename smartscreen
-$command = 'Rename-item -path C:\Windows\System32\smartscreenOFF.exe -newname smartscreen.exe -force -erroraction silentlycontinue' 
-Run-Trusted -command $command
 
 Remove-Item "$env:TEMP\EnableDefend.bat" -Force -ErrorAction SilentlyContinue
 Remove-Item "$env:TEMP\enableReg" -Recurse -Force -ErrorAction SilentlyContinue

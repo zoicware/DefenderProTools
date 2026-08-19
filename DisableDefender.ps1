@@ -1207,7 +1207,7 @@ foreach ($file in $files) {
 }
 
 $svcs = @('webthreatdefsvc', 'webthreatdefusersvc') 
-$svcs | Stop-Service -Force 
+$svcs | Stop-Service -Force -ErrorAction SilentlyContinue
 $svcs | foreach-object { sc.exe config "$_" start= disabled *>$null }
 
 #disable tasks
